@@ -8,11 +8,16 @@ interface EditorShellProps {
   properties: React.ReactNode;
 }
 
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+
 export const EditorShell: React.FC<EditorShellProps> = ({
   sidebar,
   canvas,
   properties,
 }) => {
+  const router = useRouter();
+
   return (
     <div className="flex h-screen bg-[#1a1c1e] text-white overflow-hidden">
       {/* Left Sidebar - Component Library */}
@@ -23,7 +28,18 @@ export const EditorShell: React.FC<EditorShellProps> = ({
       {/* Main Canvas - Preview */}
       <main className="flex-1 bg-secondary/10 relative overflow-hidden flex flex-col">
         <header className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-[#222831]">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push("/")}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-text-light/60 hover:text-white transition-all group"
+              title="Back to Home"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              <span className="text-xs font-bold">
+                Back
+              </span>
+            </button>
+            <div className="w-px h-6 bg-white/10" />
             <span className="text-sm font-bold tracking-tight">
               MailMaker <span className="text-accent">Editor</span>
             </span>
