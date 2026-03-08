@@ -10,52 +10,12 @@ import {
   Twitter,
   Linkedin,
 } from "lucide-react";
+import { Navbar } from "./components/Navbar";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="bg-accent p-1.5 rounded-lg">
-            <Mail className="w-5 h-5 text-text-light" />
-          </div>
-          <span className="text-xl font-bold tracking-tight">
-            MailMaker <span className="text-accent">AI</span>
-          </span>
-        </div>
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-light/80">
-          <Link
-            href="#features"
-            className="hover:text-accent transition-colors"
-          >
-            Features
-          </Link>
-          <Link
-            href="#how-it-works"
-            className="hover:text-accent transition-colors"
-          >
-            How it Works
-          </Link>
-          <Link href="#pricing" className="hover:text-accent transition-colors">
-            Pricing
-          </Link>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/login"
-            className="hidden sm:block text-sm font-medium hover:text-accent transition-colors"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/signup"
-            className="bg-accent hover:bg-accent/90 text-text-light px-5 py-2.5 rounded-full text-sm font-semibold transition-all hover:scale-105"
-          >
-            Sign up
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <header className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden">
@@ -76,7 +36,7 @@ export default function Home() {
           </div>
 
           <h1
-            className="text-5xl md:text-7xl font-extrabold leading-[1.1] mb-8 gradient-text"
+            className="text-xl lg:text-5xl xl:text-7xl font-extrabold leading-[1.1] mb-8 gradient-text"
             data-aos="fade-up"
           >
             Create stunning emails <br className="hidden md:block" /> in
@@ -84,7 +44,7 @@ export default function Home() {
           </h1>
 
           <p
-            className="text-lg md:text-xl text-text-light/60 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="md:text-lg lg:text-xl text-text-light/60 max-w-2xl mx-auto mb-10 leading-relaxed"
             data-aos="fade-up"
             data-aos-delay="100"
           >
@@ -98,10 +58,10 @@ export default function Home() {
             data-aos="fade-up"
             data-aos-delay="200"
           >
-            <button className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-text-light px-8 py-4 rounded-full text-lg font-bold transition-all hover:scale-105 flex items-center justify-center gap-2">
+            <button className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-text-light px-8 py-3 rounded-full lg:text-lg font-bold transition-all hover:scale-105 flex items-center justify-center gap-2">
               Start creating <ArrowRight className="w-5 h-5" />
             </button>
-            <button className="w-full sm:w-auto glass hover:bg-white/10 text-text-light px-8 py-4 rounded-full text-lg font-bold transition-all">
+            <button className="w-full sm:w-auto glass hover:bg-white/10 text-text-light px-8 py-3 rounded-full lg:text-lg font-bold transition-all">
               Watch Demo
             </button>
           </div>
@@ -160,7 +120,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2
-              className="text-3xl md:text-5xl font-bold mb-6"
+              className="text-xl lg:text-3xl xl:text-5xl font-bold mb-6"
               data-aos="fade-up"
             >
               Everything you need to <span className="text-accent">scale</span>.
@@ -217,7 +177,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             <div className="lg:w-1/2" data-aos="fade-right">
-              <h2 className="text-3xl md:text-5xl font-bold mb-8 leading-tight">
+              <h2 className="text-xl lg:text-3xl xl:text-5xl font-bold mb-8 leading-tight">
                 Design like a pro, <br /> even if you aren't one.
               </h2>
 

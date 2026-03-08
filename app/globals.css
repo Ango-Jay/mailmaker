@@ -14,17 +14,27 @@
   --color-accent: var(--accent);
   --color-text-light: var(--text-light);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-heading: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--text-light);
-  font-family: var(--font-geist-sans);
-  scroll-behavior: smooth;
-  overflow-x: hidden;
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--text-light);
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
 }
+
+
 
 ::selection {
   background-color: var(--accent);
