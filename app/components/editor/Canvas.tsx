@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import mjml2html from "mjml-browser";
 import { Monitor, Smartphone } from "lucide-react";
 import { useEditorStore } from "@/lib/editor/store";
 import { jsonToMjml } from "@/lib/editor/transformer";
@@ -14,13 +13,14 @@ export const Canvas: React.FC = () => {
 
   // Convert JSON to MJML and then to HTML
   useEffect(() => {
-    try {
-      const mjml = jsonToMjml(template, activeElementId);
+    const compile = async () => {
+      try {
+        const mjml = jsonToMjml(template, activeElementId);
 
-      // Inject a custom style for the selected element
-      const mjmlWithStyle = mjml.replace(
-        "<mjml>",
-        `
+        // Inject a custom style for the selected element
+        const mjmlWithStyle = mjml.replace(
+          "<mjml>",
+          `
 <mjml>
   <mj-head>
     <mj-style>
@@ -29,12 +29,14 @@ export const Canvas: React.FC = () => {
       mj-text, mj-button, mj-image { cursor: pointer; }
     </mj-style>
   </mj-head>`,
-      );
+        );
 
-      const { html: compiledHtml, errors } = mjml2html(mjmlWithStyle);
+        // Dynamically import mjml2html to avoid SSR issues with "window is not defined"
+        const mjml2html = (await import("mjml-browser")).default;
+        const { html: compiledHtml, errors } = mjml2html(mjmlWithStyle);
 
-      // Post-process HTML to add click listeners to elements with data-id
-      const script = `
+        // Post-process HTML to add click listeners to elements with data-id
+        const script = `
         <script>
           document.addEventListener('click', (e) => {
             const target = e.target.closest('[data-id]');
@@ -46,12 +48,15 @@ export const Canvas: React.FC = () => {
         </script>
       `;
 
-      setHtml(compiledHtml + script);
-      setError(null);
-    } catch (err) {
-      console.error("Compilation Error:", err);
-      setError("Failed to compile MJML");
-    }
+        setHtml(compiledHtml + script);
+        setError(null);
+      } catch (err) {
+        console.error("Compilation Error:", err);
+        setError("Failed to compile MJML");
+      }
+    };
+
+    compile();
   }, [template, activeElementId]);
 
   // Listen for messages from iframe
