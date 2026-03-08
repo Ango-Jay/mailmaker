@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MailMaker AI
 
-## Getting Started
+MailMaker AI is a modern, web-based email template builder designed to help users create responsive, high-quality emails without writing code. It leverages **MJML** (Mailjet Markup Language) under the hood to ensure that the generated HTML is compatible across all major email clients.
 
-First, run the development server:
+## 🚀 Features
+
+- **Visual Editor**: Click-to-add components from a rich library of basic elements (Text, Image, Button, Divider) and structural layouts (Sections, Columns).
+- **Pre-fab Cards**: Quickly assemble emails using professionally designed composite blocks like Email Signatures, Testimonials, and Hero Banners.
+- **Real-time Preview**: See your email come to life instantly. The central canvas renders the MJML code to HTML in real-time within an isolated iframe.
+- **Responsive Testing**: Toggle between Desktop and Mobile viewport modes to ensure your design looks great on any device.
+- **Context-Aware Property Editor**: Select any element on the canvas to edit its specific attributes (colors, typography, padding) and content via the right sidebar.
+- **Modern Tech Stack**: Built with performance and developer experience in mind.
+
+## 🛠️ Technology Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **UI & Styling**: React, [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)
+- **Email Engine**: [MJML](https://mjml.io/) (via `mjml-browser`)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Icons**: [Lucide React](https://lucide.dev/)
+
+## 🏗️ Architecture
+
+The editor is built around a centralized Zustand store (`lib/editor/store.ts`) that manages the email template as a serialized JSON tree of `MJElement` nodes.
+
+1. **State Updates**: User interactions in the Left Sidebar (adding components) or Right Sidebar (updating properties) mutate this JSON state.
+2. **Transformation**: A recursive transformer (`lib/editor/transformer.ts`) parses the JSON tree and compiles it into a valid MJML string.
+3. **Compilation**: The MJML string is passed to `mjml-browser`, which generates the final, email-client-safe HTML.
+4. **Rendering**: The HTML is securely rendered on the Canvas inside an iframe, complete with injected scripts for element selection and hover states.
+
+## 🏃‍♂️ Getting Started
+
+First, install the dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, run the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application. The main editor is located at `/editor`.
