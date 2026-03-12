@@ -1,6 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { useTemplateStore } from "@/lib/editor/template-store";
+import { ExportHtmlModal } from "./ExportHtmlModal";
 
 interface EditorShellProps {
   sidebar: React.ReactNode;
@@ -8,15 +12,14 @@ interface EditorShellProps {
   properties: React.ReactNode;
 }
 
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-
 export const EditorShell: React.FC<EditorShellProps> = ({
   sidebar,
   canvas,
   properties,
 }) => {
   const router = useRouter();
+  const { blocks } = useTemplateStore();
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-[#1a1c1e] text-white overflow-hidden">
@@ -45,7 +48,10 @@ export const EditorShell: React.FC<EditorShellProps> = ({
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <button className="text-xs bg-accent hover:bg-accent/90 px-4 py-2 rounded-lg font-bold transition-all">
+            <button
+              onClick={() => setExportModalOpen(true)}
+              className="text-xs bg-accent hover:bg-accent/90 px-4 py-2 rounded-lg font-bold transition-all"
+            >
               Export HTML
             </button>
           </div>
@@ -59,6 +65,16 @@ export const EditorShell: React.FC<EditorShellProps> = ({
       <aside className="w-80 border-l border-white/10 bg-[#222831] flex flex-col">
         {properties}
       </aside>
+
+{
+  exportModalOpen && (
+    <ExportHtmlModal
+    isOpen={exportModalOpen}
+    onClose={() => setExportModalOpen(false)}
+    blocks={blocks}
+  />
+  )
+}
     </div>
   );
 };
