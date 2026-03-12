@@ -2,40 +2,65 @@
 
 import React, { useState } from "react";
 import {
-  Layout,
   Type,
   Image as ImageIcon,
   MousePointer2,
   Minus,
-  Columns,
   DivideSquare,
   LayoutTemplate,
   FileSignature,
   MessageSquareQuote,
   Image as BannerIcon,
 } from "lucide-react";
-import { useEditorStore } from "@/lib/editor/store";
+import { useTemplateStore } from "@/lib/editor/template-store";
+import type { MJMLBlock, BlockType } from "@/lib/editor/block-types";
 import { ResponsiveModal } from "@/app/components/ui/Modal";
 
-const COMPONENT_LIBRARY = [
+const COMPONENT_LIBRARY: {
+  type: BlockType;
+  icon: React.ReactNode;
+  label: string;
+  defaultBlock: Omit<MJMLBlock, "id">;
+}[] = [
   {
-    type: "mj-section",
-    icon: <Layout className="w-5 h-5" />,
-    label: "Section",
+    type: "text",
+    icon: <Type className="w-5 h-5" />,
+    label: "Text",
+    defaultBlock: { type: "text", content: "New text", size: "medium" },
   },
-  { type: "mj-column", icon: <Columns className="w-5 h-5" />, label: "Column" },
-  { type: "mj-text", icon: <Type className="w-5 h-5" />, label: "Text" },
-  { type: "mj-image", icon: <ImageIcon className="w-5 h-5" />, label: "Image" },
   {
-    type: "mj-button",
+    type: "image",
+    icon: <ImageIcon className="w-5 h-5" />,
+    label: "Image",
+    defaultBlock: {
+      type: "image",
+      src: "https://via.placeholder.com/600x300",
+      alt: "Image",
+    },
+  },
+  {
+    type: "button",
     icon: <MousePointer2 className="w-5 h-5" />,
     label: "Button",
+    defaultBlock: {
+      type: "button",
+      text: "Click Me",
+      link: "#",
+      backgroundColor: "#D65A31",
+      textColor: "#ffffff",
+    },
   },
-  { type: "mj-divider", icon: <Minus className="w-5 h-5" />, label: "Divider" },
   {
-    type: "mj-spacer",
+    type: "spacer",
+    icon: <Minus className="w-5 h-5" />,
+    label: "Divider",
+    defaultBlock: { type: "spacer", height: "2px" },
+  },
+  {
+    type: "spacer",
     icon: <DivideSquare className="w-5 h-5" />,
     label: "Spacer",
+    defaultBlock: { type: "spacer", height: "20px" },
   },
 ];
 
@@ -63,114 +88,44 @@ const PREFAB_CARDS = [
 type Tab = "basic" | "cards";
 
 export const Sidebar: React.FC = () => {
-  const { addElement, template } = useEditorStore();
+  const { addBlock } = useTemplateStore();
   const [activeTab, setActiveTab] = useState<Tab>("basic");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const findFirstParent = (element: any, targetType: string): string | null => {
-    if (element.type === targetType) return element.id;
-    if (element.children) {
-      for (const child of element.children) {
-        const foundId = findFirstParent(child, targetType);
-        if (foundId) return foundId;
-      }
-    }
-    return null;
-  };
-
-  const handleAddComponent = (type: string) => {
-    const columnId = findFirstParent(template, "mj-column");
-
-    if (columnId) {
-      const defaultContent: Record<string, string> = {
-        "mj-text": "New Text Element",
-        "mj-button": "Click Me",
-      };
-
-      const defaultAttributes: Record<string, any> = {
-        "mj-button": { "background-color": "#D65A31", color: "white" },
-        "mj-image": { src: "https://via.placeholder.com/600x300" },
-      };
-
-      addElement(columnId, {
-        id: "",
-        type: type as any,
-        content: defaultContent[type],
-        attributes: defaultAttributes[type],
-      });
-    }
+  const handleAddComponent = (item: (typeof COMPONENT_LIBRARY)[number]) => {
+    addBlock(item.defaultBlock);
   };
 
   const handleAddPrefab = (id: string) => {
-    const columnId = findFirstParent(template, "mj-column");
-    if (!columnId) return;
-
-    // Helper to generate a unique ID (normally handled by nanoid in store, but for nested children we might need to rely on the store's deep clone/ID generation if implemented, or we just pass empty IDs and let the store handle it)
-
     if (id === "signature") {
-      addElement(columnId, {
-        id: "",
-        type: "mj-group",
-        attributes: { width: "100%" },
-        children: [
-          {
-            id: "",
-            type: "mj-image",
-            attributes: {
-              src: "https://i.pravatar.cc/150",
-              width: "80px",
-              "border-radius": "40px",
-              align: "left",
-              padding: "10px",
-            },
-          },
-          {
-            id: "",
-            type: "mj-text",
-            attributes: { "padding-top": "20px" },
-            content:
-              "<strong>John Doe</strong><br/>CEO, Company Inc.<br/><a href='#'>@johndoe</a>",
-          },
-        ],
+      addBlock({
+        type: "card",
+        variant: "minimal",
+        title: "John Doe",
+        subtitle: "CEO, Company Inc.",
+        ctaText: "@johndoe",
+        link: "#",
       });
     } else if (id === "testimonial") {
-      addElement(columnId, {
-        id: "",
-        type: "mj-text",
-        attributes: {
-          "font-style": "italic",
-          "border-left": "4px solid #D65A31",
-          padding: "20px",
-          "background-color": "#f8f9fa",
-        },
-        content:
-          '"This product completely transformed our workflow. Highly recommended!"<br/><br/><strong>- Jane Smith</strong>',
+      addBlock({
+        type: "card",
+        variant: "minimal",
+        description:
+          '"This product completely transformed our workflow. Highly recommended!" — Jane Smith',
+        italic: true,
       });
     } else if (id === "banner") {
-      // For a banner, we might ideally want an mj-hero or a section with a background image.
-      // Since we are adding to a column, we can use an image followed by text
-      addElement(columnId, {
-        id: "",
-        type: "mj-image",
-        attributes: {
-          src: "https://images.unsplash.com/photo-1557683316-973673baf926?w=600&h=300&fit=crop",
-          padding: "0px",
-          width: "600px",
-        },
-      });
-      addElement(columnId, {
-        id: "",
-        type: "mj-text",
-        attributes: {
-          align: "center",
-          "background-color": "#222831",
-          color: "white",
-          padding: "30px",
-        },
-        content: "<h2>Special Offer</h2><p>Get 50% off today only!</p>",
+      addBlock({
+        type: "card",
+        variant: "feature",
+        title: "Special Offer",
+        description: "Get 50% off today only!",
+        ctaText: "Shop Now",
+        link: "#",
+        backgroundColor: "#222831",
+        textColor: "#ffffff",
       });
     }
-
     setIsModalOpen(false);
   };
 
@@ -210,8 +165,9 @@ export const Sidebar: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               {COMPONENT_LIBRARY.map((item) => (
                 <button
-                  key={item.type}
-                  onClick={() => handleAddComponent(item.type)}
+                  key={item.label}
+                  type="button"
+                  onClick={() => handleAddComponent(item)}
                   className="flex flex-col items-center justify-center gap-3 py-6 px-2 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 hover:border-accent/30 transition-all group"
                 >
                   <div className="text-text-light/40 group-hover:text-accent transition-colors">

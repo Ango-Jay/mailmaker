@@ -32,6 +32,10 @@
     font-family: var(--font-heading);
     font-weight: 700;
   }
+
+  button {
+    cursor: pointer;
+  }
 }
 
 

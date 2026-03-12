@@ -58,9 +58,12 @@ export default function Home() {
             data-aos="fade-up"
             data-aos-delay="200"
           >
-            <button className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-text-light px-8 py-3 rounded-full lg:text-lg font-bold transition-all hover:scale-105 flex items-center justify-center gap-2">
+            <Link
+              href="/editor"
+              className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-text-light px-8 py-3 rounded-full lg:text-lg font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
+            >
               Start creating <ArrowRight className="w-5 h-5" />
-            </button>
+            </Link>
             <button className="w-full sm:w-auto glass hover:bg-white/10 text-text-light px-8 py-3 rounded-full lg:text-lg font-bold transition-all">
               Watch Demo
             </button>
@@ -317,7 +320,7 @@ export default function Home() {
 
           <div className="flex flex-col md:flex-row justify-between items-center pt-10 border-t border-white/5 gap-4">
             <p className="text-[10px] text-text-light/30">
-              © 2024 MailMaker AI Inc. All rights reserved.
+              © {new Date().getFullYear()} MailMaker AI Inc. All rights reserved.
             </p>
             <div className="flex gap-6 text-[10px] text-text-light/30 font-medium">
               <span className="hover:text-text-light/60 cursor-pointer">
