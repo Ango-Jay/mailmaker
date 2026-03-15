@@ -6,6 +6,10 @@ import type { MJMLBlock } from "@/lib/editor/block-types";
 import { blocksToGeneratedMjml } from "@/lib/editor/blocks-to-mjml";
 import { ResponsiveModal } from "@/app/components/ui/Modal";
 
+/**
+ * Shows the GENERATED OUTPUT: email-friendly HTML from MJML (blocks → MJML → mjml2html).
+ * This is the same HTML used for sending emails, not the editor preview.
+ */
 interface ExportHtmlModalProps {
   isOpen: boolean;
   onClose: () => void;

@@ -26,7 +26,7 @@ const COMPONENT_LIBRARY: {
     type: "text",
     icon: <Type className="w-5 h-5" />,
     label: "Text",
-    defaultBlock: { type: "text", content: "New text", size: "medium" },
+    defaultBlock: { type: "text", content: "New text", size: "medium", textStyle: "paragraph" },
   },
   {
     type: "image",

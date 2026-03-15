@@ -5,13 +5,18 @@ import type { MJMLBlock } from "./block-types";
 /**
  * Email template store.
  *
- * The template is an array of blocks (basic blocks + prebuilt cards). Both
- * preview and generated output are derived from this blocks array only:
+ * The template is an array of blocks. We have two representations:
  *
- * - Preview: HTML for the canvas = mjml2html(blocksToGeneratedMjml(blocks, activeBlockId))
- * - Generated: MJML for export = blocksToGeneratedMjml(blocks)
+ * 1. PREVIEW – What we show in the editor canvas so the user can edit.
+ *    Implemented as React components (BlockPreview). Not the same as the
+ *    final email HTML; it’s a visual approximation for the editor.
  *
- * Use blocksToGeneratedMjml from @/lib/editor/blocks-to-mjml to get either form.
+ * 2. GENERATED OUTPUT – Email-friendly HTML from MJML (inline styles,
+ *    table-based layout for clients). Produced by:
+ *    blocksToGeneratedMjml(blocks) → mjml2html() → HTML.
+ *    Used for export (ExportHtmlModal) and for sending emails.
+ *
+ * Both are derived from this blocks array only.
  */
 export interface TemplateState {
   /** Ordered list of email template blocks (basic blocks and prebuilt cards). */

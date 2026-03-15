@@ -9,7 +9,11 @@ interface BlockPreviewProps {
   className?: string;
 }
 
-/** Renders a single block as React for the sortable canvas (email-style preview). */
+/**
+ * Editor PREVIEW: renders one block as React for the canvas.
+ * This is not the generated email HTML; it’s a visual approximation for editing.
+ * The actual email output comes from MJML (blocksToGeneratedMjml → mjml2html).
+ */
 export const BlockPreview: React.FC<BlockPreviewProps> = ({
   block,
   isSelected,
@@ -17,12 +21,20 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
 }) => {
   const align = block.align ?? block.textAlign ?? "center";
   const color = block.textColor ?? block.color ?? "#333333";
+  const textStyle = block.textStyle ?? (block.size === "large" ? "h1" : block.size === "small" ? "h3" : "paragraph");
   const fontSize =
-    block.size === "large"
-      ? "1.25rem"
-      : block.size === "small"
-        ? "0.875rem"
-        : "1rem";
+    textStyle === "h1"
+      ? "1.75rem"
+      : textStyle === "h2"
+        ? "1.375rem"
+        : textStyle === "h3"
+          ? "1.125rem"
+          : block.size === "large"
+            ? "1.25rem"
+            : block.size === "small"
+              ? "0.875rem"
+              : "1rem";
+  const fontWeight = textStyle === "h1" || textStyle === "h2" || textStyle === "h3" ? 700 : undefined;
 
   const alignClass =
     align === "left"
@@ -34,23 +46,56 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
   const wrapperClass = `block-preview ${alignClass} ${isSelected ? "ring-2 ring-[#D65A31] ring-offset-2 rounded" : ""} ${className}`.trim();
 
   switch (block.type) {
-    case "text":
+    case "text": {
+      const listType = block.listType ?? "none";
+      const items =
+        block.listItems?.length
+          ? block.listItems
+          : (block.content ?? block.text ?? "")
+              .split(/\n/)
+              .map((s) => s.trim())
+              .filter(Boolean);
+      const textDeco = [
+        block.underline ? "underline" : "",
+        block.strikethrough ? "line-through" : "",
+      ].filter(Boolean).join(" ");
+      const style: React.CSSProperties = {
+        color,
+        fontSize,
+        fontWeight: block.bold ? 700 : fontWeight,
+        fontStyle: block.italic ? "italic" : undefined,
+        textDecoration: textDeco || undefined,
+        textTransform: block.textTransform && block.textTransform !== "none" ? block.textTransform : undefined,
+      };
       return (
-        <div className={wrapperClass}>
-          <div
-            className="py-2 px-4"
-            style={{
-              color,
-              fontSize,
-              fontWeight: block.bold ? 700 : undefined,
-              fontStyle: block.italic ? "italic" : undefined,
-              textDecoration: block.underline ? "underline" : undefined,
-            }}
-          >
-            {block.content ?? block.text ?? ""}
+        <div
+          className={wrapperClass}
+          style={
+            block.backgroundColor
+              ? { backgroundColor: block.backgroundColor, borderRadius: 8 }
+              : undefined
+          }
+        >
+          <div className="py-2 px-4" style={style}>
+            {listType === "bullet" && items.length > 0 ? (
+              <ul className="list-disc pl-5 my-0 space-y-0.5">
+                {items.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            ) : listType === "numbered" && items.length > 0 ? (
+              <ol className="list-decimal pl-5 my-0 space-y-0.5">
+                {items.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ol>
+            ) : (
+              block.content ?? block.text ?? ""
+            )}
           </div>
         </div>
       );
+    }
 
     case "button":
       return (

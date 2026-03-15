@@ -54,7 +54,13 @@ export interface MJMLBlock {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  strikethrough?: boolean;
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
+
+  /* text block: semantic style */
+  textStyle?: "h1" | "h2" | "h3" | "paragraph";
+  listType?: "none" | "bullet" | "numbered";
+  listItems?: string[];
 
   /* card-only (locked layout) */
   variant?: CardVariant;
@@ -86,11 +92,11 @@ export interface MJMLBlock {
 }
 
 /**
- * Preview representation: HTML string for real-time display in the canvas.
+ * Editor PREVIEW: visual representation shown in the canvas (e.g. React BlockPreview component).
  */
 export type BlockPreview = string;
 
 /**
- * Generated representation: MJML string for the final email output.
+ * GENERATED OUTPUT: MJML string that compiles to email-friendly HTML for export/sending.
  */
 export type BlockGenerated = string;

@@ -6,6 +6,11 @@ import { useTemplateStore } from "@/lib/editor/template-store";
 import { BlockPreview } from "./BlockPreview";
 import type { MJMLBlock } from "@/lib/editor/block-types";
 
+/**
+ * Editor PREVIEW canvas: shows blocks as React-rendered BlockPreview components.
+ * This is for editing only. The GENERATED OUTPUT (email-friendly HTML from MJML)
+ * is produced separately (e.g. Export HTML modal).
+ */
 export const Canvas: React.FC = () => {
   const { blocks, activeBlockId, setActiveBlockId } = useTemplateStore();
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
@@ -51,13 +56,20 @@ export const Canvas: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="p-4 space-y-2 min-h-full">
+          <div
+            className="p-4 space-y-2 min-h-full"
+            onClick={() => setActiveBlockId(null)}
+            role="presentation"
+          >
             {blocks.map((block: MJMLBlock) => (
               <div
                 key={block.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => setActiveBlockId(block.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveBlockId(block.id);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();

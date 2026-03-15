@@ -24,20 +24,32 @@ function blockToMjmlFragment(
 
   const align = block.align ?? block.textAlign ?? "center";
   const color = block.textColor ?? block.color ?? "#333333";
-  const fontSize =
-    block.size === "large"
-      ? "24px"
-      : block.size === "small"
-        ? "14px"
-        : "18px";
 
   switch (block.type) {
     case "text": {
-      const text = block.content ?? block.text ?? "";
+      const textStyle = block.textStyle ?? (block.size === "large" ? "h1" : block.size === "small" ? "h3" : "paragraph");
+      const fontSize =
+        textStyle === "h1"
+          ? "28px"
+          : textStyle === "h2"
+            ? "22px"
+            : textStyle === "h3"
+              ? "18px"
+              : block.size === "large"
+                ? "24px"
+                : block.size === "small"
+                  ? "14px"
+                  : "16px";
+      const fontWeight = textStyle === "h1" || textStyle === "h2" || textStyle === "h3" ? "bold" : undefined;
+
+      const textDeco = [
+        block.underline ? "underline" : "",
+        block.strikethrough ? "line-through" : "",
+      ].filter(Boolean).join(" ");
       const style = [
-        block.bold ? "font-weight: bold" : "",
+        block.bold ? "font-weight: bold" : fontWeight ? `font-weight: ${fontWeight}` : "",
         block.italic ? "font-style: italic" : "",
-        block.underline ? "text-decoration: underline" : "",
+        textDeco ? `text-decoration: ${textDeco}` : "",
         block.textTransform && block.textTransform !== "none" ? `text-transform: ${block.textTransform}` : "",
       ].filter(Boolean).join("; ");
       const mjTextAttrs = [
@@ -46,9 +58,26 @@ function blockToMjmlFragment(
         attr("font-size", fontSize),
         style ? ` style="${style}"` : "",
       ].filter(Boolean).join(" ");
-      return `<${SECTION_TAG}${baseAttrs}>
+
+      const listType = block.listType ?? "none";
+      const items =
+        (block.listItems && block.listItems.length > 0
+          ? block.listItems
+          : (block.content ?? block.text ?? "").split(/\n/).filter((s) => s.trim().length > 0)) as string[];
+
+      let inner = "";
+      if (listType === "bullet" && items.length > 0) {
+        inner = `<ul style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item.trim())}</li>`).join("")}</ul>`;
+      } else if (listType === "numbered" && items.length > 0) {
+        inner = `<ol style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item.trim())}</li>`).join("")}</ol>`;
+      } else {
+        inner = escapeHtml(block.content ?? block.text ?? "");
+      }
+
+      const sectionBg = block.backgroundColor ? ` background-color="${escapeAttr(block.backgroundColor)}"` : "";
+      return `<${SECTION_TAG}${baseAttrs}${sectionBg}>
   <${COLUMN_TAG}>
-    <mj-text${mjTextAttrs}>${escapeHtml(text)}</mj-text>
+    <mj-text${mjTextAttrs}>${inner}</mj-text>
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
     }
@@ -142,13 +171,14 @@ const MJML_HEAD = `
 
 /**
  * Converts the template blocks array into a full MJML document.
- * This is the single source for both representations of the template:
  *
- * - Preview: pass activeBlockId and compile result with mjml2html() for canvas HTML.
- * - Generated: call without activeBlockId (or with) for final MJML export.
+ * This MJML is used only for the GENERATED OUTPUT (email-friendly HTML):
+ * compile with mjml2html() to get the final HTML for export / sending.
+ * The editor PREVIEW is rendered separately (BlockPreview React components),
+ * not from this compiled HTML.
  *
  * @param blocks - Array of blocks from the template store
- * @param activeBlockId - Optional; when provided, the active block gets the selected-element class for preview
+ * @param activeBlockId - Optional; when provided, the active block gets the selected-element class (e.g. if preview were ever rendered from this MJML)
  */
 export function blocksToGeneratedMjml(
   blocks: MJMLBlock[],
