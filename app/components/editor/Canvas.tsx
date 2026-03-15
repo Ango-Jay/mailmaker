@@ -12,7 +12,7 @@ import type { MJMLBlock } from "@/lib/editor/block-types";
  * is produced separately (e.g. Export HTML modal).
  */
 export const Canvas: React.FC = () => {
-  const { blocks, activeBlockId, setActiveBlockId, removeBlock } = useTemplateStore();
+  const { blocks, activeBlockId, setActiveBlockId, removeBlock, updateBlock } = useTemplateStore();
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
 
   return (
@@ -65,18 +65,11 @@ export const Canvas: React.FC = () => {
               <div
                 key={block.id}
                 role="button"
-                tabIndex={0}
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveBlockId(block.id);
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setActiveBlockId(block.id);
-                  }
-                }}
-                className="relative group rounded-lg min-h-[2rem] px-4 py-1"
+                className="relative group rounded-lg min-h-[2rem] px-4 py-1 cursor-pointer"
                 data-block-id={block.id}
               >
                 <button
@@ -94,6 +87,8 @@ export const Canvas: React.FC = () => {
                 <BlockPreview
                   block={block}
                   isSelected={activeBlockId === block.id}
+                  onBlockUpdate={(updates) => updateBlock(block.id, updates)}
+                  onFocusBlock={() => setActiveBlockId(block.id)}
                 />
               </div>
             ))}

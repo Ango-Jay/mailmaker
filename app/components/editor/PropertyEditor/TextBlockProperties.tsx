@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Bold, Italic, Underline, Strikethrough } from "lucide-react";
 import type { MJMLBlock } from "@/lib/editor/block-types";
 import { ColorPicker } from "@/app/components/ui/ColorPicker";
@@ -13,12 +13,19 @@ interface TextBlockPropertiesProps {
 
 export function TextBlockProperties({ block, onUpdate }: TextBlockPropertiesProps) {
   const handleChange = (updates: Partial<MJMLBlock>) => onUpdate(updates);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  // Focus Content field when this text block is selected so user can type immediately
+  useEffect(() => {
+    contentRef.current?.focus();
+  }, [block.id]);
 
   return (
     <>
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <label className={LABEL_CLASS}>Content</label>
         <textarea
+          ref={contentRef}
           value={block.content ?? block.text ?? ""}
           onChange={(e) =>
             handleChange({ content: e.target.value, text: e.target.value })
@@ -26,7 +33,7 @@ export function TextBlockProperties({ block, onUpdate }: TextBlockPropertiesProp
           className={`${INPUT_CLASS} min-h-[80px]`}
           placeholder="Enter your text…"
         />
-      </div>
+      </div> */}
 
       <div className="space-y-2">
         <label className={LABEL_CLASS}>Text type</label>
@@ -141,14 +148,11 @@ export function TextBlockProperties({ block, onUpdate }: TextBlockPropertiesProp
             value={(block.listItems ?? []).join("\n")}
             onChange={(e) =>
               handleChange({
-                listItems: e.target.value
-                  .split("\n")
-                  .map((s) => s.trim())
-                  .filter(Boolean),
+                listItems: e.target.value.split("\n"),
               })
             }
-            placeholder={"Item 1\nItem 2\nItem 3"}
-            className={`${INPUT_CLASS} min-h-[60px] text-xs`}
+            placeholder="One item per line…"
+            className={`${INPUT_CLASS} min-h-[100px]`}
           />
         )}
       </div>

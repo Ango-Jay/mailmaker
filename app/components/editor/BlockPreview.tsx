@@ -7,6 +7,10 @@ interface BlockPreviewProps {
   block: MJMLBlock;
   isSelected?: boolean;
   className?: string;
+  /** Called when a block's content should be updated (e.g. text block textarea). */
+  onBlockUpdate?: (updates: Partial<MJMLBlock>) => void;
+  /** Called when a focusable part of the block is focused (e.g. to select the block). */
+  onFocusBlock?: () => void;
 }
 
 /**
@@ -18,6 +22,8 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
   block,
   isSelected,
   className = "",
+  onBlockUpdate,
+  onFocusBlock,
 }) => {
   const align = block.align ?? block.textAlign ?? "center";
   const color = block.textColor ?? block.color ?? "#333333";
@@ -48,13 +54,9 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
   switch (block.type) {
     case "text": {
       const listType = block.listType ?? "none";
-      const items =
-        block.listItems?.length
-          ? block.listItems
-          : (block.content ?? block.text ?? "")
-              .split(/\n/)
-              .map((s) => s.trim())
-              .filter(Boolean);
+      const isList = listType === "bullet" || listType === "numbered";
+      const rawContent = block.content ?? block.text ?? "";
+      const listItems = block.listItems ?? [];
       const textDeco = [
         block.underline ? "underline" : "",
         block.strikethrough ? "line-through" : "",
@@ -66,7 +68,70 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
         fontStyle: block.italic ? "italic" : undefined,
         textDecoration: textDeco || undefined,
         textTransform: block.textTransform && block.textTransform !== "none" ? block.textTransform : undefined,
+        textAlign: align === "left" ? "left" : align === "right" ? "right" : "center",
       };
+
+      if (isList) {
+        const items = listItems.length > 0 ? listItems : [""];
+        const updateItem = (index: number, text: string) => {
+          const next = [...items];
+          next[index] = text;
+          onBlockUpdate?.({ listItems: next });
+        };
+        const addItem = () => onBlockUpdate?.({ listItems: [...items, ""] });
+        const removeItem = (index: number) => {
+          const next = items.filter((_, i) => i !== index);
+          onBlockUpdate?.({ listItems: next.length > 0 ? next : [""] });
+        };
+        const ListTag = listType === "numbered" ? "ol" : "ul";
+        return (
+          <div
+            className={wrapperClass}
+            style={
+              block.backgroundColor
+                ? { backgroundColor: block.backgroundColor, borderRadius: 8 }
+                : undefined
+            }
+          >
+            <div className="py-2 px-4" style={style}>
+              <ListTag className={listType === "numbered" ? "list-decimal" : "list-disc"} style={{ margin: 0, paddingLeft: "1.25rem" }}>
+                {items.map((item, i) => (
+                  <li key={i} className="flex items-center gap-2 py-0.5">
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) => updateItem(i, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onFocus={onFocusBlock}
+                      className="flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 p-0 text-inherit"
+                      style={{ textTransform: style.textTransform }}
+                      placeholder="List item"
+                    />
+                    {items.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeItem(i); }}
+                        className="flex-shrink-0 text-red-500/80 hover:text-red-500 text-xs"
+                        aria-label="Remove item"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ListTag>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); addItem(); }}
+                className="mt-1 text-xs text-accent hover:underline"
+              >
+                + Add item
+              </button>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div
           className={wrapperClass}
@@ -77,21 +142,18 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
           }
         >
           <div className="py-2 px-4" style={style}>
-            {listType === "bullet" && items.length > 0 ? (
-              <ul className="list-disc pl-5 my-0 space-y-0.5">
-                {items.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
-              </ul>
-            ) : listType === "numbered" && items.length > 0 ? (
-              <ol className="list-decimal pl-5 my-0 space-y-0.5">
-                {items.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
-              </ol>
-            ) : (
-              block.content ?? block.text ?? ""
-            )}
+            <textarea
+              value={rawContent}
+              onChange={(e) =>
+                onBlockUpdate?.({ content: e.target.value, text: e.target.value })
+              }
+              onClick={(e) => e.stopPropagation()}
+              onFocus={onFocusBlock}
+              className="w-full min-h-[1.5rem] resize-y bg-transparent border-none outline-none focus:ring-0 p-0"
+              style={{ textAlign: style.textAlign, textTransform: style.textTransform }}
+              placeholder="Enter your text…"
+              rows={Math.max(1, rawContent.split(/\n/).length)}
+            />
           </div>
         </div>
       );

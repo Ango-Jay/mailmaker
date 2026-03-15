@@ -57,7 +57,7 @@ export interface MJMLBlock {
   strikethrough?: boolean;
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
 
-  /* text block: semantic style */
+  /* text block: semantic style and list */
   textStyle?: "h1" | "h2" | "h3" | "paragraph";
   listType?: "none" | "bullet" | "numbered";
   listItems?: string[];

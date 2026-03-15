@@ -27,8 +27,10 @@ function blockToMjmlFragment(
 
   switch (block.type) {
     case "text": {
-      // Single source for body text (must match BlockPreview and default block)
       const rawContent = (block.content ?? block.text ?? "").trim();
+      const listType = block.listType ?? "none";
+      const items = (block.listItems ?? []).map((s) => s.trim()).filter(Boolean);
+      const itemsFromContent = rawContent.split(/\n/).map((s) => s.trim()).filter(Boolean);
 
       const textStyle = block.textStyle ?? (block.size === "large" ? "h1" : block.size === "small" ? "h3" : "paragraph");
       const fontSize =
@@ -44,7 +46,6 @@ function blockToMjmlFragment(
                   ? "14px"
                   : "16px";
       const fontWeight = textStyle === "h1" || textStyle === "h2" || textStyle === "h3" ? "bold" : undefined;
-
       const textDeco = [
         block.underline ? "underline" : "",
         block.strikethrough ? "line-through" : "",
@@ -62,24 +63,27 @@ function blockToMjmlFragment(
         style ? ` style="${style}"` : "",
       ].filter(Boolean).join(" ");
 
-      const listType = block.listType ?? "none";
-      const items =
-        block.listItems && block.listItems.length > 0
-          ? block.listItems
-          : rawContent.split(/\n/).map((s) => s.trim()).filter(Boolean);
-
+      const textTransformStyle =
+        block.textTransform && block.textTransform !== "none"
+          ? `text-transform: ${block.textTransform}`
+          : "";
+      const listItems = items.length > 0 ? items : itemsFromContent;
       let inner: string;
-      if (listType === "bullet" && items.length > 0) {
-        inner = `<ul style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
-      } else if (listType === "numbered" && items.length > 0) {
-        inner = `<ol style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`;
+      if (listType === "bullet" && listItems.length > 0) {
+        const ulStyle = ["margin:0", "padding-left: 20px", textTransformStyle].filter(Boolean).join("; ");
+        inner = `<ul style="${ulStyle}">${listItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+      } else if (listType === "numbered" && listItems.length > 0) {
+        const olStyle = ["margin:0", "padding-left: 20px", textTransformStyle].filter(Boolean).join("; ");
+        inner = `<ol style="${olStyle}">${listItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`;
       } else {
-        // Paragraph: preserve newlines as <br/> so they show in email HTML
-        inner =
+        const paraContent =
           rawContent
             .split(/\n/)
             .map((line) => escapeHtml(line))
             .join("<br/>") || "&#160;";
+        inner = textTransformStyle
+          ? `<span style="${textTransformStyle}">${paraContent}</span>`
+          : paraContent;
       }
 
       const sectionBg = block.backgroundColor ? ` background-color="${escapeAttr(block.backgroundColor)}"` : "";
