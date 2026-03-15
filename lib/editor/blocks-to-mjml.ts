@@ -27,6 +27,9 @@ function blockToMjmlFragment(
 
   switch (block.type) {
     case "text": {
+      // Single source for body text (must match BlockPreview and default block)
+      const rawContent = (block.content ?? block.text ?? "").trim();
+
       const textStyle = block.textStyle ?? (block.size === "large" ? "h1" : block.size === "small" ? "h3" : "paragraph");
       const fontSize =
         textStyle === "h1"
@@ -61,23 +64,29 @@ function blockToMjmlFragment(
 
       const listType = block.listType ?? "none";
       const items =
-        (block.listItems && block.listItems.length > 0
+        block.listItems && block.listItems.length > 0
           ? block.listItems
-          : (block.content ?? block.text ?? "").split(/\n/).filter((s) => s.trim().length > 0)) as string[];
+          : rawContent.split(/\n/).map((s) => s.trim()).filter(Boolean);
 
-      let inner = "";
+      let inner: string;
       if (listType === "bullet" && items.length > 0) {
-        inner = `<ul style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item.trim())}</li>`).join("")}</ul>`;
+        inner = `<ul style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
       } else if (listType === "numbered" && items.length > 0) {
-        inner = `<ol style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item.trim())}</li>`).join("")}</ol>`;
+        inner = `<ol style="margin:0; padding-left: 20px;">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`;
       } else {
-        inner = escapeHtml(block.content ?? block.text ?? "");
+        // Paragraph: preserve newlines as <br/> so they show in email HTML
+        inner =
+          rawContent
+            .split(/\n/)
+            .map((line) => escapeHtml(line))
+            .join("<br/>") || "&#160;";
       }
 
       const sectionBg = block.backgroundColor ? ` background-color="${escapeAttr(block.backgroundColor)}"` : "";
-      return `<${SECTION_TAG}${baseAttrs}${sectionBg}>
+      const sectionAttrs = [baseAttrs, sectionBg].filter(Boolean).join("");
+      return `<${SECTION_TAG}${sectionAttrs ? " " : ""}${sectionAttrs}>
   <${COLUMN_TAG}>
-    <mj-text${mjTextAttrs}>${inner}</mj-text>
+    <mj-text${mjTextAttrs ? " " : ""}${mjTextAttrs}>${inner}</mj-text>
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
     }
@@ -87,9 +96,10 @@ function blockToMjmlFragment(
       const href = block.link ?? "#";
       const bg = block.backgroundColor ?? "#D65A31";
       const btnColor = block.textColor ?? block.color ?? "#ffffff";
-      return `<${SECTION_TAG}${baseAttrs}>
+      const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
-    <mj-button href="${escapeAttr(href)}" background-color="${bg}" color="${btnColor}" align="${align}">${escapeHtml(text)}</mj-button>
+    <mj-button href="${escapeAttr(href)}" background-color="${escapeAttr(bg)}" color="${escapeAttr(btnColor)}" align="${align}">${escapeHtml(text)}</mj-button>
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
     }
@@ -98,7 +108,8 @@ function blockToMjmlFragment(
       const src = block.src ?? "";
       const alt = block.alt ?? "";
       const width = block.width ?? "100%";
-      return `<${SECTION_TAG}${baseAttrs}>
+      const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
     <mj-image src="${escapeAttr(src)}" alt="${escapeAttr(alt)}" width="${escapeAttr(width)}" />
   </${COLUMN_TAG}>
@@ -107,7 +118,8 @@ function blockToMjmlFragment(
 
     case "spacer": {
       const height = block.height ?? "20px";
-      return `<${SECTION_TAG}${baseAttrs}>
+      const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
     <mj-spacer height="${escapeAttr(height)}" />
   </${COLUMN_TAG}>
@@ -119,10 +131,11 @@ function blockToMjmlFragment(
       const desc = block.description ?? block.content ?? "";
       const cta = block.ctaText ?? "Learn more";
       const ctaHref = block.link ?? "#";
-      return `<${SECTION_TAG}${baseAttrs}>
+      const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
-    <mj-text align="${align}" font-size="20px" font-weight="bold" color="${color}">${escapeHtml(title)}</mj-text>
-    <mj-text align="${align}" color="${color}" font-size="14px">${escapeHtml(desc)}</mj-text>
+    <mj-text align="${align}" font-size="20px" font-weight="bold" color="${escapeAttr(color)}">${escapeHtml(title)}</mj-text>
+    <mj-text align="${align}" color="${escapeAttr(color)}" font-size="14px">${escapeHtml(desc)}</mj-text>
     <mj-button href="${escapeAttr(ctaHref)}" align="${align}">${escapeHtml(cta)}</mj-button>
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
@@ -132,19 +145,22 @@ function blockToMjmlFragment(
       const brand = block.brand ?? "";
       const year = block.year ?? new Date().getFullYear();
       const muted = block.mutedText ?? `© ${year} ${brand}. All rights reserved.`;
-      return `<${SECTION_TAG}${baseAttrs}>
+      const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
     <mj-text align="center" font-size="12px" color="#888888">${escapeHtml(muted)}</mj-text>
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
     }
 
-    default:
-      return `<${SECTION_TAG}${baseAttrs}>
+    default: {
+      const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
     <mj-text align="${align}">${escapeHtml(String((block as MJMLBlock).content ?? ""))}</mj-text>
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
+    }
   }
 }
 
@@ -190,7 +206,7 @@ export function blocksToGeneratedMjml(
 
   return `<mjml>
 ${activeBlockId !== undefined ? MJML_HEAD : ""}
-  <mj-body>
+  <mj-body width="600px" padding="0">
     ${bodyContent || "<mj-section><mj-column><mj-text>Add blocks to get started.</mj-text></mj-column></mj-section>"}
   </mj-body>
 </mjml>`;

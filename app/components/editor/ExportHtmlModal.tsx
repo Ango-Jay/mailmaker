@@ -36,8 +36,15 @@ export const ExportHtmlModal: React.FC<ExportHtmlModalProps> = ({
       try {
         const mjml = blocksToGeneratedMjml(blocks);
         const mjml2html = (await import("mjml-browser")).default;
-        const { html } = mjml2html(mjml);
-        if (!cancelled) setExportHtml(html);
+        const { html, errors } = mjml2html(mjml, {
+          validationLevel: "skip",
+        });
+        if (!cancelled) {
+          if (errors.length > 0) {
+            setError(errors.map((e) => e.formattedMessage ?? e.message).join("; "));
+          }
+          setExportHtml(html);
+        }
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to compile HTML");

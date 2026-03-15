@@ -17,6 +17,18 @@ export function TextBlockProperties({ block, onUpdate }: TextBlockPropertiesProp
   return (
     <>
       <div className="space-y-2">
+        <label className={LABEL_CLASS}>Content</label>
+        <textarea
+          value={block.content ?? block.text ?? ""}
+          onChange={(e) =>
+            handleChange({ content: e.target.value, text: e.target.value })
+          }
+          className={`${INPUT_CLASS} min-h-[80px]`}
+          placeholder="Enter your text…"
+        />
+      </div>
+
+      <div className="space-y-2">
         <label className={LABEL_CLASS}>Text type</label>
         <select
           value={block.textStyle ?? "paragraph"}
