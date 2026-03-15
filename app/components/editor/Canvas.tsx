@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Monitor, Smartphone } from "lucide-react";
+import { Monitor, Smartphone, Trash2 } from "lucide-react";
 import { useTemplateStore } from "@/lib/editor/template-store";
 import { BlockPreview } from "./BlockPreview";
 import type { MJMLBlock } from "@/lib/editor/block-types";
@@ -12,7 +12,7 @@ import type { MJMLBlock } from "@/lib/editor/block-types";
  * is produced separately (e.g. Export HTML modal).
  */
 export const Canvas: React.FC = () => {
-  const { blocks, activeBlockId, setActiveBlockId } = useTemplateStore();
+  const { blocks, activeBlockId, setActiveBlockId, removeBlock } = useTemplateStore();
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
 
   return (
@@ -76,9 +76,21 @@ export const Canvas: React.FC = () => {
                     setActiveBlockId(block.id);
                   }
                 }}
-                className="rounded-lg min-h-[2rem] px-4 py-1"
+                className="relative group rounded-lg min-h-[2rem] px-4 py-1"
                 data-block-id={block.id}
               >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeBlock(block.id);
+                  }}
+                  className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400 transition-opacity"
+                  aria-label="Delete block"
+                  title="Delete block"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
                 <BlockPreview
                   block={block}
                   isSelected={activeBlockId === block.id}
