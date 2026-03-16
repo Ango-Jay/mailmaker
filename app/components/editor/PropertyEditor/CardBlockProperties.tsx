@@ -3,6 +3,7 @@
 import React from "react";
 import type { MJMLBlock } from "@/lib/editor/block-types";
 import { INPUT_CLASS, LABEL_CLASS } from "./constants";
+import { ColorPicker } from "@/app/components/ui/ColorPicker";
 
 interface CardBlockPropertiesProps {
   block: MJMLBlock;
@@ -78,32 +79,19 @@ export function CardBlockProperties({ block, onUpdate }: CardBlockPropertiesProp
           className={INPUT_CLASS}
         />
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className={LABEL_CLASS}>Background</label>
-          <input
-            type="color"
-            value={block.backgroundColor ?? "#ffffff"}
-            onChange={(e) =>
-              handleChange({ backgroundColor: e.target.value })
-            }
-            className="w-full h-8 bg-transparent border-none rounded cursor-pointer"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className={LABEL_CLASS}>Text color</label>
-          <input
-            type="color"
-            value={block.textColor ?? block.color ?? "#333333"}
-            onChange={(e) =>
-              handleChange({
-                textColor: e.target.value,
-                color: e.target.value,
-              })
-            }
-            className="w-full h-8 bg-transparent border-none rounded cursor-pointer"
-          />
-        </div>
+      <div className="space-y-3">
+        <ColorPicker
+          label="Background"
+          value={block.backgroundColor ?? "#ffffff"}
+          onChange={(v) => handleChange({ backgroundColor: v })}
+          id="card-block-bg-color"
+        />
+        <ColorPicker
+          label="Text color"
+          value={block.textColor ?? block.color ?? "#333333"}
+          onChange={(v) => handleChange({ textColor: v, color: v })}
+          id="card-block-text-color"
+        />
       </div>
     </>
   );

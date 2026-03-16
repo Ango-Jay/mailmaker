@@ -100,10 +100,29 @@ function blockToMjmlFragment(
       const href = block.link ?? "#";
       const bg = block.backgroundColor ?? "#D65A31";
       const btnColor = block.textColor ?? block.color ?? "#ffffff";
+      const btnAlign = block.align ?? block.textAlign ?? "center";
+      const fontSize = block.fontSize ?? "16px";
+      const fontWeight = block.bold ? "bold" : "normal";
+      const borderRadius = block.borderRadius ?? "8px";
+      const width = block.width ?? "";
+      const height = block.height ?? "";
       const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      const btnAttrs = [
+        `href="${escapeAttr(href)}"`,
+        `background-color="${escapeAttr(bg)}"`,
+        `color="${escapeAttr(btnColor)}"`,
+        `align="${escapeAttr(btnAlign)}"`,
+        `font-size="${escapeAttr(fontSize)}"`,
+        `font-weight="${escapeAttr(fontWeight)}"`,
+        borderRadius ? `border-radius="${escapeAttr(borderRadius)}"` : "",
+        width ? `width="${escapeAttr(width)}"` : "",
+        height ? `height="${escapeAttr(height)}"` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
       return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
-    <mj-button href="${escapeAttr(href)}" background-color="${escapeAttr(bg)}" color="${escapeAttr(btnColor)}" align="${align}">${escapeHtml(text)}</mj-button>
+    <mj-button ${btnAttrs}>${escapeHtml(text)}</mj-button>
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
     }

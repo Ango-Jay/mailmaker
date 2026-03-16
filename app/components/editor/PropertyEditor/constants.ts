@@ -3,6 +3,10 @@ export const INPUT_CLASS =
 export const LABEL_CLASS =
   "text-[10px] font-bold text-text-light/40 uppercase";
 
+/** Section heading in properties panel (e.g. "Text", "Layout") */
+export const SECTION_HEADER_CLASS =
+  "text-[10px] font-bold text-accent uppercase tracking-wider mt-4 mb-2 first:mt-0";
+
 export function parseValueWithUnit(
   val: string
 ): { num: number; unit: string } {

@@ -56,6 +56,8 @@ export interface MJMLBlock {
   underline?: boolean;
   strikethrough?: boolean;
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
+  /** Font size (e.g. "14px", "16px") – used by button and others */
+  fontSize?: string;
 
   /* text block: semantic style and list */
   textStyle?: "h1" | "h2" | "h3" | "paragraph";
