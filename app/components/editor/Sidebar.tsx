@@ -52,10 +52,10 @@ const COMPONENT_LIBRARY: {
     },
   },
   {
-    type: "spacer",
+    type: "divider",
     icon: <Minus className="w-5 h-5" />,
     label: "Divider",
-    defaultBlock: { type: "spacer", height: "2px" },
+    defaultBlock: { type: "divider", height: "2px", backgroundColor: "#e5e5e5" },
   },
   {
     type: "spacer",

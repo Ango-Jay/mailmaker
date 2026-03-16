@@ -169,6 +169,17 @@ function blockToMjmlFragment(
 </${SECTION_TAG}>`;
     }
 
+    case "divider": {
+      const divHeight = block.height ?? "2px";
+      const divColor = block.backgroundColor ?? block.color ?? "#e5e5e5";
+      const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrs}>
+  <${COLUMN_TAG}>
+    <mj-divider border-color="${escapeAttr(divColor)}" border-width="${escapeAttr(divHeight)}" />
+  </${COLUMN_TAG}>
+</${SECTION_TAG}>`;
+    }
+
     case "card": {
       const title = block.title ?? "";
       const desc = block.description ?? block.content ?? "";

@@ -8,6 +8,7 @@ import { TextBlockProperties } from "./TextBlockProperties";
 import { ButtonBlockProperties } from "./ButtonBlockProperties";
 import { ImageBlockProperties } from "./ImageBlockProperties";
 import { SpacerBlockProperties } from "./SpacerBlockProperties";
+import { DividerBlockProperties } from "./DividerBlockProperties";
 import { CardBlockProperties } from "./CardBlockProperties";
 import { FooterBlockProperties } from "./FooterBlockProperties";
 
@@ -64,6 +65,10 @@ export const PropertyEditor: React.FC = () => {
       case "spacer":
         return (
           <SpacerBlockProperties block={activeBlock} onUpdate={handleChange} />
+        );
+      case "divider":
+        return (
+          <DividerBlockProperties block={activeBlock} onUpdate={handleChange} />
         );
       case "card":
         return (

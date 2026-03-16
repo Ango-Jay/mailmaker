@@ -10,7 +10,8 @@ export type BlockType =
   | "image"
   | "card"
   | "footer"
-  | "spacer";
+  | "spacer"
+  | "divider";
 
 export type CardVariant =
   | "default"

@@ -7,6 +7,7 @@ import { TextBlockPreview } from "./TextBlockPreview";
 import { ButtonBlockPreview } from "./ButtonBlockPreview";
 import { ImageBlockPreview } from "./ImageBlockPreview";
 import { SpacerBlockPreview } from "./SpacerBlockPreview";
+import { DividerBlockPreview } from "./DividerBlockPreview";
 import { CardBlockPreview } from "./CardBlockPreview";
 import { FooterBlockPreview } from "./FooterBlockPreview";
 
@@ -51,6 +52,8 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
       return <ImageBlockPreview block={block} wrapperClass={wrapperClass} />;
     case "spacer":
       return <SpacerBlockPreview block={block} wrapperClass={wrapperClass} />;
+    case "divider":
+      return <DividerBlockPreview block={block} wrapperClass={wrapperClass} />;
     case "card":
       return <CardBlockPreview block={block} wrapperClass={wrapperClass} />;
     case "footer":
