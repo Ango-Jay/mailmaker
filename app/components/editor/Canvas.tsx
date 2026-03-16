@@ -5,6 +5,8 @@ import { Monitor, Smartphone, Trash2 } from "lucide-react";
 import { useTemplateStore } from "@/lib/editor/template-store";
 import { BlockPreview } from "./BlockPreview";
 import type { MJMLBlock } from "@/lib/editor/block-types";
+import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 /**
  * Editor PREVIEW canvas: shows blocks as React-rendered BlockPreview components.
@@ -12,7 +14,8 @@ import type { MJMLBlock } from "@/lib/editor/block-types";
  * is produced separately (e.g. Export HTML modal).
  */
 export const Canvas: React.FC = () => {
-  const { blocks, activeBlockId, setActiveBlockId, removeBlock, updateBlock } = useTemplateStore();
+  const { blocks, activeBlockId, setActiveBlockId, removeBlock, updateBlock } =
+    useTemplateStore();
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
 
   return (
@@ -61,40 +64,84 @@ export const Canvas: React.FC = () => {
             onClick={() => setActiveBlockId(null)}
             role="presentation"
           >
-            {blocks.map((block: MJMLBlock) => (
-              <div
-                key={block.id}
-                role="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveBlockId(block.id);
-                }}
-                className="relative group rounded-lg min-h-[2rem] px-4 py-1 cursor-pointer"
-                data-block-id={block.id}
-              >
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeBlock(block.id);
-                  }}
-                  className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400 transition-opacity"
-                  aria-label="Delete block"
-                  title="Delete block"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-                <BlockPreview
+            <SortableContext
+              items={blocks.map((b) => b.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {blocks.map((block: MJMLBlock) => (
+                <SortableBlock
+                  key={block.id}
                   block={block}
                   isSelected={activeBlockId === block.id}
-                  onBlockUpdate={(updates) => updateBlock(block.id, updates)}
-                  onFocusBlock={() => setActiveBlockId(block.id)}
+                  onSelect={() => setActiveBlockId(block.id)}
+                  onDelete={() => removeBlock(block.id)}
+                  onUpdate={(updates) => updateBlock(block.id, updates)}
                 />
-              </div>
-            ))}
+              ))}
+            </SortableContext>
           </div>
         )}
       </div>
     </div>
   );
 };
+
+interface SortableBlockProps {
+  block: MJMLBlock;
+  isSelected: boolean;
+  onSelect: () => void;
+  onDelete: () => void;
+  onUpdate: (updates: Partial<MJMLBlock>) => void;
+}
+
+const SortableBlock: React.FC<SortableBlockProps> = ({
+  block,
+  isSelected,
+  onSelect,
+  onDelete,
+  onUpdate,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: block.id,
+  });
+
+  const style: React.CSSProperties = {
+    transform: transform ? CSS.Translate.toString(transform) : undefined,
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
+      className="relative group rounded-lg min-h-[2rem] px-4 py-1 cursor-move"
+      data-block-id={block.id}
+      {...attributes}
+      {...listeners}
+    >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-red-500/90 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400 transition-opacity"
+        aria-label="Delete block"
+        title="Delete block"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+      <BlockPreview
+        block={block}
+        isSelected={isSelected}
+        onBlockUpdate={onUpdate}
+        onFocusBlock={onSelect}
+      />
+    </div>
+  );
+};
+
