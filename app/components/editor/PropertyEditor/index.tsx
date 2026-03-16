@@ -3,6 +3,7 @@
 import React from "react";
 import { useTemplateStore } from "@/lib/editor/template-store";
 import type { MJMLBlock, BlockType } from "@/lib/editor/block-types";
+import { useImageUploadModalStore } from "@/lib/editor/image-upload-modal-store";
 import { TextBlockProperties } from "./TextBlockProperties";
 import { ButtonBlockProperties } from "./ButtonBlockProperties";
 import { ImageBlockProperties } from "./ImageBlockProperties";
@@ -13,6 +14,7 @@ import { FooterBlockProperties } from "./FooterBlockProperties";
 export const PropertyEditor: React.FC = () => {
   const { activeBlockId, getBlock, updateBlock, removeBlock } =
     useTemplateStore();
+  const openImageUploadModal = useImageUploadModalStore((s) => s.openForEdit);
 
   const activeBlock = activeBlockId ? getBlock(activeBlockId) : null;
 
@@ -53,7 +55,11 @@ export const PropertyEditor: React.FC = () => {
         );
       case "image":
         return (
-          <ImageBlockProperties block={activeBlock} onUpdate={handleChange} />
+          <ImageBlockProperties
+            block={activeBlock}
+            onUpdate={handleChange}
+            onOpenUploadModal={openImageUploadModal}
+          />
         );
       case "spacer":
         return (

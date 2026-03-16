@@ -71,6 +71,9 @@ export interface MJMLBlock {
   badge?: string;
   ctaText?: string;
 
+  /* image block: optional caption below image */
+  caption?: string;
+
   /* footer-only */
   footerVariant?: FooterVariant;
   brand?: string;

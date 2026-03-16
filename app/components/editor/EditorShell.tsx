@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTemplateStore } from "@/lib/editor/template-store";
 import { ExportHtmlModal } from "./ExportHtmlModal";
+import { ImageUploadModal } from "./ImageUploadModal";
 
 interface EditorShellProps {
   sidebar: React.ReactNode;
@@ -66,15 +67,14 @@ export const EditorShell: React.FC<EditorShellProps> = ({
         {properties}
       </aside>
 
-{
-  exportModalOpen && (
-    <ExportHtmlModal
-    isOpen={exportModalOpen}
-    onClose={() => setExportModalOpen(false)}
-    blocks={blocks}
-  />
-  )
-}
+      {exportModalOpen && (
+        <ExportHtmlModal
+          isOpen={exportModalOpen}
+          onClose={() => setExportModalOpen(false)}
+          blocks={blocks}
+        />
+      )}
+      <ImageUploadModal />
     </div>
   );
 };

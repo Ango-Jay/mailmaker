@@ -15,6 +15,7 @@ import {
 import { useTemplateStore } from "@/lib/editor/template-store";
 import type { MJMLBlock, BlockType } from "@/lib/editor/block-types";
 import { ResponsiveModal } from "@/app/components/ui/Modal";
+import { useImageUploadModalStore } from "@/lib/editor/image-upload-modal-store";
 
 const COMPONENT_LIBRARY: {
   type: BlockType;
@@ -34,8 +35,8 @@ const COMPONENT_LIBRARY: {
     label: "Image",
     defaultBlock: {
       type: "image",
-      src: "https://via.placeholder.com/600x300",
-      alt: "Image",
+      src: "",
+      alt: "",
     },
   },
   {
@@ -89,11 +90,16 @@ type Tab = "basic" | "cards";
 
 export const Sidebar: React.FC = () => {
   const { addBlock } = useTemplateStore();
+  const openImageUploadModal = useImageUploadModalStore((s) => s.openForAdd);
   const [activeTab, setActiveTab] = useState<Tab>("basic");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAddComponent = (item: (typeof COMPONENT_LIBRARY)[number]) => {
-    addBlock(item.defaultBlock);
+    if (item.type === "image") {
+      openImageUploadModal();
+    } else {
+      addBlock(item.defaultBlock);
+    }
   };
 
   const handleAddPrefab = (id: string) => {

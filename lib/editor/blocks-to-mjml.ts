@@ -112,10 +112,30 @@ function blockToMjmlFragment(
       const src = block.src ?? "";
       const alt = block.alt ?? "";
       const width = block.width ?? "100%";
+      const height = block.height ?? "";
+      const href = block.link ?? "";
+      const imgAlign = block.align ?? block.textAlign ?? "center";
+      const borderRad = block.borderRadius ?? "";
+      const caption = block.caption ?? "";
       const sectionAttrs = baseAttrs ? ` ${baseAttrs}` : "";
+      const mjImgAttrs = [
+        `src="${escapeAttr(src)}"`,
+        `alt="${escapeAttr(alt)}"`,
+        `width="${escapeAttr(width)}"`,
+        height ? `height="${escapeAttr(height)}"` : "",
+        href ? `href="${escapeAttr(href)}"` : "",
+        imgAlign ? `align="${escapeAttr(imgAlign)}"` : "",
+        borderRad ? `border-radius="${escapeAttr(borderRad)}"` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const captionMj =
+        caption
+          ? `\n    <mj-text align="${escapeAttr(imgAlign)}" font-size="12px" color="#888888" padding-top="8px">${escapeHtml(caption)}</mj-text>`
+          : "";
       return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
-    <mj-image src="${escapeAttr(src)}" alt="${escapeAttr(alt)}" width="${escapeAttr(width)}" />
+    <mj-image ${mjImgAttrs} />${captionMj}
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
     }
