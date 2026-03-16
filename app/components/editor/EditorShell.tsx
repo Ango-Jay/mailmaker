@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTemplateStore } from "@/lib/editor/template-store";
-import { ExportHtmlModal } from "./ExportHtmlModal";
+import { ExportModal } from "./ExportModal";
 import { ImageUploadModal } from "./ImageUploadModal";
 
 interface EditorShellProps {
@@ -53,7 +53,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
               onClick={() => setExportModalOpen(true)}
               className="text-xs bg-accent hover:bg-accent/90 px-4 py-2 rounded-lg font-bold transition-all"
             >
-              Export HTML
+              Export
             </button>
           </div>
         </header>
@@ -68,7 +68,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({
       </aside>
 
       {exportModalOpen && (
-        <ExportHtmlModal
+        <ExportModal
           isOpen={exportModalOpen}
           onClose={() => setExportModalOpen(false)}
           blocks={blocks}
