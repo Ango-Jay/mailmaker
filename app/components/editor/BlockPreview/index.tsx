@@ -10,6 +10,7 @@ import { SpacerBlockPreview } from "./SpacerBlockPreview";
 import { DividerBlockPreview } from "./DividerBlockPreview";
 import { CardBlockPreview } from "./CardBlockPreview";
 import { FooterBlockPreview } from "./FooterBlockPreview";
+import { HtmlBlockPreview } from "./HtmlBlockPreview";
 
 export interface BlockPreviewProps {
   block: MJMLBlock;
@@ -54,6 +55,16 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
       return <SpacerBlockPreview block={block} wrapperClass={wrapperClass} />;
     case "divider":
       return <DividerBlockPreview block={block} wrapperClass={wrapperClass} />;
+    case "html":
+      return <HtmlBlockPreview block={block} wrapperClass={wrapperClass} />;
+    case "mjml":
+      return (
+        <div className={`${wrapperClass} py-3`}>
+          <div className="rounded-lg border border-dashed border-white/15 bg-white/5 px-3 py-6 text-[11px] text-text-light/50 text-center">
+            Custom MJML block
+          </div>
+        </div>
+      );
     case "card":
       return <CardBlockPreview block={block} wrapperClass={wrapperClass} />;
     case "footer":

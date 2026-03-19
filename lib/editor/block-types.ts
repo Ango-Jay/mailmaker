@@ -11,7 +11,9 @@ export type BlockType =
   | "card"
   | "footer"
   | "spacer"
-  | "divider";
+  | "divider"
+  | "html"
+  | "mjml";
 
 export type CardVariant =
   | "default"

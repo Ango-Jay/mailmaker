@@ -11,6 +11,40 @@ import { SpacerBlockProperties } from "./SpacerBlockProperties";
 import { DividerBlockProperties } from "./DividerBlockProperties";
 import { CardBlockProperties } from "./CardBlockProperties";
 import { FooterBlockProperties } from "./FooterBlockProperties";
+import { HtmlBlockProperties } from "./HtmlBlockProperties";
+import { INPUT_CLASS, LABEL_CLASS, SECTION_HEADER_CLASS } from "./constants";
+
+function MjmlBlockProperties({
+  block,
+  onUpdate,
+}: {
+  block: MJMLBlock;
+  onUpdate: (updates: Partial<MJMLBlock>) => void;
+}) {
+  const handleChange = (updates: Partial<MJMLBlock>) => onUpdate(updates);
+
+  return (
+    <>
+      <h4 className={SECTION_HEADER_CLASS}>Main</h4>
+      <div className="space-y-2">
+        <label className={LABEL_CLASS}>MJML</label>
+        <textarea
+          value={block.content ?? ""}
+          onChange={(e) => handleChange({ content: e.target.value })}
+          className={`${INPUT_CLASS} min-h-[220px] font-mono text-[11px]`}
+          placeholder="Paste MJML here"
+          spellCheck={false}
+        />
+      </div>
+
+      <h4 className={SECTION_HEADER_CLASS}>Others</h4>
+      <p className="text-[10px] text-text-light/50 leading-relaxed">
+        Custom MJML is sanitized lightly (scripts/styles removed). You are
+        responsible for producing valid MJML.
+      </p>
+    </>
+  );
+}
 
 export const PropertyEditor: React.FC = () => {
   const { activeBlockId, getBlock, updateBlock, removeBlock } =
@@ -70,6 +104,10 @@ export const PropertyEditor: React.FC = () => {
         return (
           <DividerBlockProperties block={activeBlock} onUpdate={handleChange} />
         );
+      case "html":
+        return <HtmlBlockProperties block={activeBlock} onUpdate={handleChange} />;
+      case "mjml":
+        return <MjmlBlockProperties block={activeBlock} onUpdate={handleChange} />;
       case "card":
         return (
           <CardBlockProperties block={activeBlock} onUpdate={handleChange} />

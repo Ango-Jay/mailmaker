@@ -1,4 +1,5 @@
 import type { MJMLBlock } from "./block-types";
+import { sanitizeHtmlBlock, sanitizeMjmlBlock } from "./helpers";
 
 const SECTION_TAG = "mj-section";
 const COLUMN_TAG = "mj-column";
@@ -123,6 +124,26 @@ function blockToMjmlFragment(
       return `<${SECTION_TAG}${sectionAttrs}>
   <${COLUMN_TAG}>
     <mj-button ${btnAttrs}>${escapeHtml(text)}</mj-button>
+  </${COLUMN_TAG}>
+</${SECTION_TAG}>`;
+    }
+
+    case "html": {
+      const html = sanitizeHtmlBlock(block.content ?? "");
+      const sectionAttrsHtml = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrsHtml}>
+  <${COLUMN_TAG}>
+    <mj-raw>${html}</mj-raw>
+  </${COLUMN_TAG}>
+</${SECTION_TAG}>`;
+    }
+
+    case "mjml": {
+      const mjml = sanitizeMjmlBlock(block.content ?? "");
+      const sectionAttrsMjml = baseAttrs ? ` ${baseAttrs}` : "";
+      return `<${SECTION_TAG}${sectionAttrsMjml}>
+  <${COLUMN_TAG}>
+    ${mjml}
   </${COLUMN_TAG}>
 </${SECTION_TAG}>`;
     }
