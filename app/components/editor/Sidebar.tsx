@@ -19,6 +19,7 @@ import { useImageUploadModalStore } from "@/lib/editor/image-upload-modal-store"
 import { useLayoutStore } from "@/lib/editor/layout-store";
 import { StepperInput } from "./PropertyEditor/StepperInput";
 import { ColorPicker } from "@/app/components/ui/ColorPicker";
+import { TemplateLibraryModal, type TemplateLibraryCard } from "./TemplateLibraryModal";
 
 const COMPONENT_LIBRARY: {
   type: BlockType;
@@ -87,6 +88,12 @@ const PREFAB_CARDS = [
     label: "Hero Banner",
     desc: "Full-width image with overlaid text and CTA",
   },
+  {
+    id: "rows",
+    icon: <LayoutTemplate className="w-8 h-8 text-accent mb-3" />,
+    label: "Rows",
+    desc: "Use rows to add components in a grid layout.",
+  },
 ];
 
 type Tab = "basic" | "cards" | "layout";
@@ -151,6 +158,39 @@ export const Sidebar: React.FC = () => {
         link: "#",
         backgroundColor: "#222831",
         textColor: "#ffffff",
+      });
+    } else if (id === "rows") {
+      // Layout preset inspired by the "Row" design settings screen.
+      setContentAreaWidth("700px");
+      setContentAreaAlignment("center");
+      setBackgroundColor("#ffffff");
+      setContentAreaBackgroundColor("transparent");
+      setBackgroundImageEnabled(false);
+      setDefaultFontFamily("Inter, Arial, sans-serif");
+      setLinkColor("#7747ff");
+      setLanguage("English");
+
+      // Insert a simple row scaffold (text + CTA).
+      addBlock({
+        type: "text",
+        content: "Your headline goes here",
+        size: "medium",
+        textStyle: "paragraph",
+        align: "center",
+        color: "#333333",
+      });
+      addBlock({
+        type: "button",
+        text: "Learn more",
+        link: "#",
+        backgroundColor: "#D65A31",
+        textColor: "#ffffff",
+        align: "center",
+        fontSize: "16px",
+        bold: true,
+        borderRadius: "8px",
+        width: "200px",
+        height: "44px",
       });
     }
     setIsModalOpen(false);
@@ -410,29 +450,12 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Cards Modal */}
-      <ResponsiveModal
+      <TemplateLibraryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Template Library"
-        width={800}
-        radius={24}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {PREFAB_CARDS.map((card) => (
-            <button
-              key={card.id}
-              onClick={() => handleAddPrefab(card.id)}
-              className="flex flex-col text-left p-6 bg-[#1a1c1e] border border-white/5 rounded-2xl hover:border-accent/50 hover:bg-white/5 transition-all group"
-            >
-              {card.icon}
-              <h4 className="font-bold text-white mb-2">{card.label}</h4>
-              <p className="text-xs text-text-light/60 leading-relaxed group-hover:text-text-light/80 transition-colors">
-                {card.desc}
-              </p>
-            </button>
-          ))}
-        </div>
-      </ResponsiveModal>
+        cards={PREFAB_CARDS as TemplateLibraryCard[]}
+        onAddPrefab={handleAddPrefab}
+      />
     </div>
   );
 };
