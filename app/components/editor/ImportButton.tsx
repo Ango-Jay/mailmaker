@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Upload } from "lucide-react";
 import { ResponsiveModal } from "@/app/components/ui/Modal";
 import { useTemplateStore } from "@/lib/editor/template-store";
