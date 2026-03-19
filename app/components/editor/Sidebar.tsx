@@ -16,6 +16,9 @@ import { useTemplateStore } from "@/lib/editor/template-store";
 import type { MJMLBlock, BlockType } from "@/lib/editor/block-types";
 import { ResponsiveModal } from "@/app/components/ui/Modal";
 import { useImageUploadModalStore } from "@/lib/editor/image-upload-modal-store";
+import { useLayoutStore } from "@/lib/editor/layout-store";
+import { StepperInput } from "./PropertyEditor/StepperInput";
+import { ColorPicker } from "@/app/components/ui/ColorPicker";
 
 const COMPONENT_LIBRARY: {
   type: BlockType;
@@ -86,11 +89,29 @@ const PREFAB_CARDS = [
   },
 ];
 
-type Tab = "basic" | "cards";
+type Tab = "basic" | "cards" | "layout";
 
 export const Sidebar: React.FC = () => {
   const { addBlock } = useTemplateStore();
   const openImageUploadModal = useImageUploadModalStore((s) => s.openForAdd);
+  const {
+    contentAreaWidth,
+    contentAreaAlignment,
+    backgroundColor,
+    contentAreaBackgroundColor,
+    backgroundImageEnabled,
+    defaultFontFamily,
+    linkColor,
+    language,
+    setContentAreaWidth,
+    setContentAreaAlignment,
+    setBackgroundColor,
+    setContentAreaBackgroundColor,
+    setBackgroundImageEnabled,
+    setDefaultFontFamily,
+    setLinkColor,
+    setLanguage,
+  } = useLayoutStore();
   const [activeTab, setActiveTab] = useState<Tab>("basic");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -159,6 +180,16 @@ export const Sidebar: React.FC = () => {
         >
           Cards
         </button>
+        <button
+          onClick={() => setActiveTab("layout")}
+          className={`flex-1 py-2 text-[11px] font-bold uppercase tracking-wider rounded-md transition-all ${
+            activeTab === "layout"
+              ? "bg-accent text-white"
+              : "text-text-light/40 hover:text-text-light hover:bg-white/5"
+          }`}
+        >
+          Layout
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -186,7 +217,7 @@ export const Sidebar: React.FC = () => {
               ))}
             </div>
           </div>
-        ) : (
+        ) : activeTab === "cards" ? (
           <div className="space-y-6 flex flex-col items-center justify-center h-full pb-10">
             <div className="w-16 h-16 rounded-2xl bg-accent/20 flex items-center justify-center mb-2">
               <LayoutTemplate className="w-8 h-8 text-accent" />
@@ -204,6 +235,176 @@ export const Sidebar: React.FC = () => {
             >
               Browse Library
             </button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+              Design Settings
+            </h3>
+
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-[10px] font-semibold text-text-light/60">
+                  Content area width
+                </label>
+                <StepperInput
+                  value={contentAreaWidth}
+                  onChange={(v) => setContentAreaWidth(v)}
+                  step={10}
+                  min={375}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-semibold text-text-light/60">
+                  Content area alignment
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setContentAreaAlignment("left")}
+                    className={`flex-1 px-3 py-2 rounded-lg border text-xs font-bold transition-colors ${
+                      contentAreaAlignment === "left"
+                        ? "bg-accent text-white border-accent"
+                        : "bg-white/5 border-white/10 text-text-light/60 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    Left
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setContentAreaAlignment("center")}
+                    className={`flex-1 px-3 py-2 rounded-lg border text-xs font-bold transition-colors ${
+                      contentAreaAlignment === "center"
+                        ? "bg-accent text-white border-accent"
+                        : "bg-white/5 border-white/10 text-text-light/60 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    Center
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setContentAreaAlignment("right")}
+                    className={`flex-1 px-3 py-2 rounded-lg border text-xs font-bold transition-colors ${
+                      contentAreaAlignment === "right"
+                        ? "bg-accent text-white border-accent"
+                        : "bg-white/5 border-white/10 text-text-light/60 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    Right
+                  </button>
+                </div>
+              </div>
+
+              <ColorPicker
+                label="Background color"
+                value={backgroundColor}
+                onChange={(v) => setBackgroundColor(v)}
+                id="layout-bg-color"
+              />
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-semibold text-text-light/60">
+                  Content background color
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setContentAreaBackgroundColor("transparent")}
+                    className={`px-3 py-2 rounded-lg border text-xs font-bold transition-colors ${
+                      contentAreaBackgroundColor === "transparent"
+                        ? "bg-accent text-white border-accent"
+                        : "bg-white/5 border-white/10 text-text-light/60 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    Transparent
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    {contentAreaBackgroundColor === "transparent" ? (
+                      <div className="w-full h-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-text-light/40 flex items-center">
+                        Choose a color below
+                      </div>
+                    ) : (
+                      <ColorPicker
+                        label="Pick color"
+                        value={contentAreaBackgroundColor}
+                        onChange={(v) => setContentAreaBackgroundColor(v)}
+                        id="layout-content-bg-color"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-semibold text-text-light/60">
+                  Background image
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setBackgroundImageEnabled(!backgroundImageEnabled)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-bold transition-colors ${
+                    backgroundImageEnabled
+                      ? "bg-accent/20 border-accent/30 text-accent"
+                      : "bg-white/5 border-white/10 text-text-light/60 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <span>{backgroundImageEnabled ? "Enabled" : "Disabled"}</span>
+                  <span
+                    className={`inline-flex items-center justify-center w-10 h-6 rounded-full border ${
+                      backgroundImageEnabled
+                        ? "bg-accent border-accent text-white"
+                        : "bg-white/5 border-white/10 text-text-light/60"
+                    }`}
+                  >
+                    {backgroundImageEnabled ? "On" : "Off"}
+                  </span>
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-semibold text-text-light/60">
+                  Default font
+                </label>
+                <select
+                  value={defaultFontFamily}
+                  onChange={(e) => setDefaultFontFamily(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-accent"
+                >
+                  <option value="Inter, Arial, sans-serif">Inter</option>
+                  <option value="Arial, Helvetica, sans-serif">Arial</option>
+                  <option value="Georgia, serif">Georgia</option>
+                  <option value="Times New Roman, Times, serif">Times New Roman</option>
+                </select>
+              </div>
+
+              <ColorPicker
+                label="Link color"
+                value={linkColor}
+                onChange={(v) => setLinkColor(v)}
+                id="layout-link-color"
+              />
+            </div>
+
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+              Metadata
+            </h3>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-semibold text-text-light/60">
+                Language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-accent"
+              >
+                <option value="English">English</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+              </select>
+            </div>
           </div>
         )}
       </div>

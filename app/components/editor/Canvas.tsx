@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Monitor, Smartphone, Trash2 } from "lucide-react";
 import { useTemplateStore } from "@/lib/editor/template-store";
+import { useLayoutStore } from "@/lib/editor/layout-store";
 import { BlockPreview } from "./BlockPreview";
 import type { MJMLBlock } from "@/lib/editor/block-types";
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
@@ -16,7 +17,30 @@ import { CSS } from "@dnd-kit/utilities";
 export const Canvas: React.FC = () => {
   const { blocks, activeBlockId, setActiveBlockId, removeBlock, updateBlock } =
     useTemplateStore();
+  const {
+    contentAreaWidth,
+    contentAreaAlignment,
+    backgroundColor,
+    contentAreaBackgroundColor,
+    backgroundImageEnabled,
+    defaultFontFamily,
+  } = useLayoutStore();
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
+
+  const contentWidthStyle = viewMode === "desktop" ? contentAreaWidth : "375px";
+  const contentBgStyle =
+    contentAreaBackgroundColor === "transparent"
+      ? "transparent"
+      : contentAreaBackgroundColor;
+  const contentAlignStyle =
+    contentAreaAlignment === "left"
+      ? { marginRight: "auto", marginLeft: 0 }
+      : contentAreaAlignment === "right"
+        ? { marginLeft: "auto", marginRight: 0 }
+        : { marginLeft: "auto", marginRight: "auto" };
+  const pageBgStyle = backgroundImageEnabled
+    ? { backgroundImage: "linear-gradient(135deg,#ffffff,#f2f2f2)" }
+    : {};
 
   return (
     <div className="flex flex-col items-center w-full h-full gap-6">
@@ -48,12 +72,21 @@ export const Canvas: React.FC = () => {
 
       {/* Frame */}
       <div
-        className={`h-full bg-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-auto transition-all duration-500 border border-white/10 ${
-          viewMode === "desktop" ? "w-full max-w-4xl" : "w-[375px]"
+        className={`h-full rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-auto transition-all duration-500 border border-white/10 ${
+          viewMode === "desktop" ? "w-full" : "w-[375px]"
         }`}
+        style={{ backgroundColor, ...pageBgStyle }}
       >
         {blocks.length === 0 ? (
-          <div className="h-full min-h-[320px] flex flex-col items-center justify-center gap-3 p-8 text-center">
+          <div
+            className="h-full min-h-[320px] flex flex-col items-center justify-center gap-3 p-8 text-center"
+            style={{
+              width: contentWidthStyle,
+              backgroundColor: contentBgStyle,
+              fontFamily: defaultFontFamily,
+              ...contentAlignStyle,
+            }}
+          >
             <p className="text-sm text-[#666]">
               Add blocks from the sidebar to get started
             </p>
@@ -63,6 +96,12 @@ export const Canvas: React.FC = () => {
             className="p-4 space-y-2 min-h-full"
             onClick={() => setActiveBlockId(null)}
             role="presentation"
+            style={{
+              width: contentWidthStyle,
+              backgroundColor: contentBgStyle,
+              fontFamily: defaultFontFamily,
+              ...contentAlignStyle,
+            }}
           >
             <SortableContext
               items={blocks.map((b) => b.id)}

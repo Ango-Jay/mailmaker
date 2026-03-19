@@ -1,5 +1,6 @@
 import type { MJMLBlock } from "./block-types";
 import { sanitizeHtmlBlock, sanitizeMjmlBlock } from "./helpers";
+import type { LayoutState } from "./layout-store";
 
 const SECTION_TAG = "mj-section";
 const COLUMN_TAG = "mj-column";
@@ -251,14 +252,26 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 }
 
-const MJML_HEAD = `
-  <mj-head>
-    <mj-style>
+const SELECTED_STYLE = `
       .selected-element { outline: 2px solid #D65A31 !important; outline-offset: -2px; cursor: pointer; }
       * { cursor: default; }
       mj-text, mj-button, mj-image { cursor: pointer; }
+`;
+
+function mjmlHead(layout: LayoutState, includeSelectedStyle: boolean): string {
+  const selectedCss = includeSelectedStyle ? SELECTED_STYLE : "";
+  const fontFamily = escapeAttr(layout.defaultFontFamily);
+  const linkColor = escapeAttr(layout.linkColor);
+
+  return `<mj-head>
+    <mj-style>
+${selectedCss}a { color: ${linkColor} !important; }
     </mj-style>
+    <mj-attributes>
+      <mj-all font-family="${fontFamily}" />
+    </mj-attributes>
   </mj-head>`;
+}
 
 /**
  * Converts the template blocks array into a full MJML document.
@@ -274,15 +287,42 @@ const MJML_HEAD = `
 export function blocksToGeneratedMjml(
   blocks: MJMLBlock[],
   activeBlockId?: string | null,
+  layout?: LayoutState,
 ): string {
+  const resolvedLayout: LayoutState = layout ?? {
+    contentAreaWidth: "600px",
+    contentAreaAlignment: "center",
+    backgroundColor: "#ffffff",
+    contentAreaBackgroundColor: "transparent",
+    backgroundImageEnabled: false,
+    defaultFontFamily: "Inter, Arial, sans-serif",
+    linkColor: "#7747ff",
+    language: "English",
+    setContentAreaWidth: (_v: string) => {},
+    setContentAreaAlignment: (_v: LayoutState["contentAreaAlignment"]) => {},
+    setBackgroundColor: (_v: string) => {},
+    setContentAreaBackgroundColor: (_v: string) => {},
+    setBackgroundImageEnabled: (_v: boolean) => {},
+    setDefaultFontFamily: (_v: string) => {},
+    setLinkColor: (_v: string) => {},
+    setLanguage: (_v: string) => {},
+  };
+
   const bodyContent = blocks
     .map((block) => blockToMjmlFragment(block, activeBlockId ?? null))
     .join("\n");
 
+  const head = mjmlHead(resolvedLayout, activeBlockId !== undefined);
+  const mjBodyBg = resolvedLayout.backgroundColor;
+  const mjWrapperBg = resolvedLayout.contentAreaBackgroundColor;
+  const textAlign = resolvedLayout.contentAreaAlignment;
+
   return `<mjml>
-${activeBlockId !== undefined ? MJML_HEAD : ""}
-  <mj-body width="600px" padding="0">
-    ${bodyContent || "<mj-section><mj-column><mj-text>Add blocks to get started.</mj-text></mj-column></mj-section>"}
+${head}
+  <mj-body width="${escapeAttr(resolvedLayout.contentAreaWidth)}" padding="0" background-color="${escapeAttr(mjBodyBg)}">
+    <mj-wrapper text-align="${escapeAttr(textAlign)}" background-color="${escapeAttr(mjWrapperBg)}">
+      ${bodyContent || "<mj-section><mj-column><mj-text>Add blocks to get started.</mj-text></mj-column></mj-section>"}
+    </mj-wrapper>
   </mj-body>
 </mjml>`;
 }

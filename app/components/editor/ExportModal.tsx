@@ -5,6 +5,7 @@ import { Copy, Download } from "lucide-react";
 import type { MJMLBlock } from "@/lib/editor/block-types";
 import { blocksToGeneratedMjml } from "@/lib/editor/blocks-to-mjml";
 import { ResponsiveModal } from "@/app/components/ui/Modal";
+import { useLayoutStore } from "@/lib/editor/layout-store";
 
 type ExportTab = "html" | "mjml";
 
@@ -19,6 +20,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   onClose,
   blocks,
 }) => {
+  const { 
+    contentAreaWidth,
+    contentAreaAlignment,
+    backgroundColor,
+    contentAreaBackgroundColor,
+    backgroundImageEnabled,
+    defaultFontFamily,
+    linkColor,
+    language,
+  } = useLayoutStore();
   const [activeTab, setActiveTab] = useState<ExportTab>("html");
   const [mjml, setMjml] = useState<string | null>(null);
   const [exportHtml, setExportHtml] = useState<string | null>(null);
@@ -35,7 +46,24 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     let cancelled = false;
     (async () => {
       try {
-        const mjmlString = blocksToGeneratedMjml(blocks);
+        const mjmlString = blocksToGeneratedMjml(blocks, undefined, {
+          contentAreaWidth,
+          contentAreaAlignment,
+          backgroundColor,
+          contentAreaBackgroundColor,
+          backgroundImageEnabled,
+          defaultFontFamily,
+          linkColor,
+          language,
+          setContentAreaWidth: () => {},
+          setContentAreaAlignment: () => {},
+          setBackgroundColor: () => {},
+          setContentAreaBackgroundColor: () => {},
+          setBackgroundImageEnabled: () => {},
+          setDefaultFontFamily: () => {},
+          setLinkColor: () => {},
+          setLanguage: () => {},
+        });
         if (cancelled) return;
         setMjml(mjmlString);
 
