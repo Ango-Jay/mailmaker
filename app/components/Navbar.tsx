@@ -33,9 +33,9 @@ export const Navbar = () => {
           >
             How it Works
           </Link>
-          <Link href="#pricing" className="hover:text-accent transition-colors">
+          {/* <Link href="#pricing" className="hover:text-accent transition-colors">
             Pricing
-          </Link>
+          </Link> */}
         </div>
 
         <div className="hidden md:flex items-center gap-4">
@@ -100,13 +100,13 @@ export const Navbar = () => {
           >
             How it Works
           </Link>
-          <Link
+          {/* <Link
             href="#pricing"
             onClick={() => setIsOpen(false)}
             className="hover:text-accent transition-colors w-full text-center py-2"
           >
             Pricing
-          </Link>
+          </Link> */}
           <div className="w-full h-px bg-white/10" />
           <Link
             href="/login"

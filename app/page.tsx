@@ -25,16 +25,6 @@ export default function Home() {
         </div>
 
         <div className="max-w-5xl mx-auto text-center">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1 bg-secondary rounded-full border border-white/10 text-xs font-semibold mb-8"
-            data-aos="fade-down"
-          >
-            <span className="bg-accent px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider">
-              New
-            </span>
-            <span>AI-powered templates now available</span>
-          </div>
-
           <h1
             className="text-xl lg:text-5xl xl:text-7xl font-extrabold leading-[1.1] mb-8 gradient-text"
             data-aos="fade-up"
