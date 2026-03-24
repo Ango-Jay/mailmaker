@@ -165,6 +165,7 @@ export function ColumnsBlockPreview({
                             childId={child.id}
                             columnsBlockId={block.id}
                             columnIndex={columnIndex}
+                            isSelected={sel}
                             className={`rounded-md ${
                               sel
                                 ? "ring-2 ring-accent ring-offset-2 ring-offset-white"

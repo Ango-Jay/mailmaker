@@ -35,6 +35,8 @@ interface SortableColumnChildProps {
   childId: string;
   columnsBlockId: string;
   columnIndex: number;
+  /** When true, show the drag handle (select the block on the canvas first). */
+  isSelected?: boolean;
   className?: string;
   onContentClick?: (e: React.MouseEvent) => void;
   children: React.ReactNode;
@@ -48,6 +50,7 @@ export function SortableColumnChild({
   childId,
   columnsBlockId,
   columnIndex,
+  isSelected = false,
   className = "",
   onContentClick,
   children,
@@ -78,18 +81,20 @@ export function SortableColumnChild({
       className={`relative ${className}`.trim()}
       {...attributes}
     >
-      <button
-        type="button"
-        ref={setActivatorNodeRef}
-        {...listeners}
-        className="absolute left-0 top-1 z-10 flex h-8 w-7 cursor-grab touch-none items-center justify-center rounded-md border border-neutral-300/90 bg-neutral-100/90 text-neutral-500 shadow-sm hover:border-accent/50 hover:bg-accent/10 hover:text-accent active:cursor-grabbing"
-        aria-label="Drag to reorder block in column"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <GripVertical className="h-4 w-4" strokeWidth={2} />
-      </button>
+      {isSelected && (
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          {...listeners}
+          className="absolute left-0 top-1 z-10 flex h-8 w-7 cursor-grab touch-none items-center justify-center rounded-md border border-neutral-300/90 bg-neutral-100/90 text-neutral-500 shadow-sm hover:border-accent/50 hover:bg-accent/10 hover:text-accent active:cursor-grabbing"
+          aria-label="Drag to reorder block in column"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripVertical className="h-4 w-4" strokeWidth={2} />
+        </button>
+      )}
       <div
-        className="min-w-0"
+        className={`min-w-0`}
         onClick={onContentClick}
         role="presentation"
       >
