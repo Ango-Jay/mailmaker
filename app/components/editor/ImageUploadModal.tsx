@@ -15,8 +15,10 @@ const ACCEPT = {
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export function ImageUploadModal() {
-  const { isOpen, mode, blockId, close } = useImageUploadModalStore();
-  const { addBlock, updateBlock } = useTemplateStore();
+  const { isOpen, mode, blockId, columnAddContext, imageColumnContext, close } =
+    useImageUploadModalStore();
+  const { addBlock, updateBlock, addColumnChild, updateColumnChild } =
+    useTemplateStore();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,21 @@ export function ImageUploadModal() {
       const url = data.url;
       if (!url) throw new Error("No URL returned");
 
-      if (mode === "add") {
+      if (columnAddContext) {
+        addColumnChild(columnAddContext.columnsBlockId, columnAddContext.columnIndex, {
+          type: "image",
+          src: url,
+          alt: "",
+          width: "100%",
+        });
+      } else if (imageColumnContext) {
+        updateColumnChild(
+          imageColumnContext.columnsBlockId,
+          imageColumnContext.columnIndex,
+          imageColumnContext.childId,
+          { src: url },
+        );
+      } else if (mode === "add") {
         addBlock({
           type: "image",
           src: url,
@@ -86,11 +102,19 @@ export function ImageUploadModal() {
     }
   };
 
+  const modalTitle = columnAddContext
+    ? "Add image to column"
+    : imageColumnContext
+      ? "Change column image"
+      : mode === "add"
+        ? "Add image"
+        : "Change image";
+
   return (
     <ResponsiveModal
       isOpen={isOpen}
       onClose={handleClose}
-      title={mode === "add" ? "Add image" : "Change image"}
+      title={modalTitle}
       width={420}
       radius={16}
     >

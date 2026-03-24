@@ -11,6 +11,7 @@ import { DividerBlockPreview } from "./DividerBlockPreview";
 import { CardBlockPreview } from "./CardBlockPreview";
 import { FooterBlockPreview } from "./FooterBlockPreview";
 import { HtmlBlockPreview } from "./HtmlBlockPreview";
+import { ColumnsBlockPreview } from "./ColumnsBlockPreview";
 
 export interface BlockPreviewProps {
   block: MJMLBlock;
@@ -69,6 +70,14 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({
       return <CardBlockPreview block={block} wrapperClass={wrapperClass} />;
     case "footer":
       return <FooterBlockPreview block={block} wrapperClass={wrapperClass} />;
+    case "columns":
+      return (
+        <ColumnsBlockPreview
+          block={block}
+          isSelected={isSelected}
+          className={className}
+        />
+      );
     default:
       return (
         <div className={wrapperClass}>

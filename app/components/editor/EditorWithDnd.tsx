@@ -15,11 +15,13 @@ import { Sidebar } from "./Sidebar";
 import { Canvas } from "./Canvas";
 import { PropertyEditor } from "./PropertyEditor";
 import { useTemplateStore } from "@/lib/editor/template-store";
+import { parseColumnChildSortableId } from "./BlockPreview/SortableColumnChild";
 
 const SIDEBAR_PREFIX = "sidebar-";
 
 export function EditorWithDnd() {
-  const { blocks, addBlock, reorderBlocksById } = useTemplateStore();
+  const { blocks, addBlock, reorderBlocksById, reorderColumnChildren } =
+    useTemplateStore();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -37,6 +39,39 @@ export function EditorWithDnd() {
 
       const activeId = String(active.id);
       const overId = String(over.id);
+
+      // Reorder blocks inside a columns cell (canvas)
+      const ap = parseColumnChildSortableId(activeId);
+      const op = parseColumnChildSortableId(overId);
+      if (
+        ap &&
+        op &&
+        ap.columnsBlockId === op.columnsBlockId &&
+        ap.columnIndex === op.columnIndex
+      ) {
+        const colBlock = blocks.find((b) => b.id === ap.columnsBlockId);
+        const slotBlocks =
+          colBlock?.type === "columns"
+            ? colBlock.columnSlots?.[ap.columnIndex]?.blocks
+            : undefined;
+        if (slotBlocks?.length) {
+          const fromIndex = slotBlocks.findIndex((c) => c.id === ap.childId);
+          const toIndex = slotBlocks.findIndex((c) => c.id === op.childId);
+          if (
+            fromIndex >= 0 &&
+            toIndex >= 0 &&
+            fromIndex !== toIndex
+          ) {
+            reorderColumnChildren(
+              ap.columnsBlockId,
+              ap.columnIndex,
+              fromIndex,
+              toIndex,
+            );
+          }
+        }
+        return;
+      }
 
       // Dropping from sidebar onto canvas
       if (activeId.startsWith(SIDEBAR_PREFIX)) {
@@ -59,7 +94,7 @@ export function EditorWithDnd() {
         reorderBlocksById(activeId, overId);
       }
     },
-    [blocks, addBlock, reorderBlocksById]
+    [blocks, addBlock, reorderBlocksById, reorderColumnChildren]
   );
 
   return (

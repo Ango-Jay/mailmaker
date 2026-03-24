@@ -7,7 +7,7 @@ import {
   MousePointer2,
   Minus,
   DivideSquare,
-  LayoutTemplate,
+  LayoutGrid,
   FileSignature,
   MessageSquareQuote,
   Image as BannerIcon,
@@ -19,7 +19,12 @@ import { useImageUploadModalStore } from "@/lib/editor/image-upload-modal-store"
 import { useLayoutStore } from "@/lib/editor/layout-store";
 import { StepperInput } from "./PropertyEditor/StepperInput";
 import { ColorPicker } from "@/app/components/ui/ColorPicker";
-import { TemplateLibraryModal, type TemplateLibraryCard } from "./TemplateLibraryModal";
+import {
+  TemplateLibraryModal,
+  TEMPLATE_LIBRARY_COLUMN_STEP_ID,
+  type TemplateLibraryCard,
+} from "./TemplateLibraryModal";
+import { createColumnsBlockPayload } from "@/lib/editor/columns-helpers";
 
 const COMPONENT_LIBRARY: {
   type: BlockType;
@@ -89,10 +94,10 @@ const PREFAB_CARDS = [
     desc: "Full-width image with overlaid text and CTA",
   },
   {
-    id: "rows",
-    icon: <LayoutTemplate className="w-8 h-8 text-accent mb-3" />,
-    label: "Rows",
-    desc: "Use rows to add components in a grid layout.",
+    id: TEMPLATE_LIBRARY_COLUMN_STEP_ID,
+    icon: <LayoutGrid className="w-8 h-8 text-accent mb-3" />,
+    label: "Column",
+    desc: "Multi-column layout. Choose 1, 2, 3, or 4 columns in the next step.",
   },
 ];
 
@@ -159,39 +164,14 @@ export const Sidebar: React.FC = () => {
         backgroundColor: "#222831",
         textColor: "#ffffff",
       });
-    } else if (id === "rows") {
-      // Layout preset inspired by the "Row" design settings screen.
-      setContentAreaWidth("700px");
-      setContentAreaAlignment("center");
-      setBackgroundColor("#ffffff");
-      setContentAreaBackgroundColor("transparent");
-      setBackgroundImageEnabled(false);
-      setDefaultFontFamily("Inter, Arial, sans-serif");
-      setLinkColor("#7747ff");
-      setLanguage("English");
-
-      // Insert a simple row scaffold (text + CTA).
-      addBlock({
-        type: "text",
-        content: "Your headline goes here",
-        size: "medium",
-        textStyle: "paragraph",
-        align: "center",
-        color: "#333333",
-      });
-      addBlock({
-        type: "button",
-        text: "Learn more",
-        link: "#",
-        backgroundColor: "#D65A31",
-        textColor: "#ffffff",
-        align: "center",
-        fontSize: "16px",
-        bold: true,
-        borderRadius: "8px",
-        width: "200px",
-        height: "44px",
-      });
+    } else if (id === "columns1") {
+      addBlock(createColumnsBlockPayload(1));
+    } else if (id === "columns2") {
+      addBlock(createColumnsBlockPayload(2));
+    } else if (id === "columns3") {
+      addBlock(createColumnsBlockPayload(3));
+    } else if (id === "columns4") {
+      addBlock(createColumnsBlockPayload(4));
     }
     setIsModalOpen(false);
   };
@@ -260,7 +240,7 @@ export const Sidebar: React.FC = () => {
         ) : activeTab === "cards" ? (
           <div className="space-y-6 flex flex-col items-center justify-center h-full pb-10">
             <div className="w-16 h-16 rounded-2xl bg-accent/20 flex items-center justify-center mb-2">
-              <LayoutTemplate className="w-8 h-8 text-accent" />
+              <LayoutGrid className="w-8 h-8 text-accent" />
             </div>
             <div className="text-center space-y-2 mb-4">
               <h3 className="text-sm font-bold text-white">Pre-built Cards</h3>

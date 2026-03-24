@@ -15,8 +15,13 @@ import { CSS } from "@dnd-kit/utilities";
  * is produced separately (e.g. Export HTML modal).
  */
 export const Canvas: React.FC = () => {
-  const { blocks, activeBlockId, setActiveBlockId, removeBlock, updateBlock } =
-    useTemplateStore();
+  const {
+    blocks,
+    activeBlockId,
+    selectTopLevelBlock,
+    removeBlock,
+    updateBlock,
+  } = useTemplateStore();
   const {
     contentAreaWidth,
     contentAreaAlignment,
@@ -94,7 +99,7 @@ export const Canvas: React.FC = () => {
         ) : (
           <div
             className="p-4 space-y-2 min-h-full"
-            onClick={() => setActiveBlockId(null)}
+            onClick={() => selectTopLevelBlock(null)}
             role="presentation"
             style={{
               width: contentWidthStyle,
@@ -112,7 +117,7 @@ export const Canvas: React.FC = () => {
                   key={block.id}
                   block={block}
                   isSelected={activeBlockId === block.id}
-                  onSelect={() => setActiveBlockId(block.id)}
+                  onSelect={() => selectTopLevelBlock(block.id)}
                   onDelete={() => removeBlock(block.id)}
                   onUpdate={(updates) => updateBlock(block.id, updates)}
                 />
@@ -140,9 +145,11 @@ const SortableBlock: React.FC<SortableBlockProps> = ({
   onDelete,
   onUpdate,
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
-    id: block.id,
-  });
+  const isColumns = block.type === "columns";
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition } =
+    useSortable({
+      id: block.id,
+    });
 
   const style: React.CSSProperties = {
     transform: transform ? CSS.Translate.toString(transform) : undefined,
@@ -157,11 +164,25 @@ const SortableBlock: React.FC<SortableBlockProps> = ({
         e.stopPropagation();
         onSelect();
       }}
-      className="relative group rounded-lg min-h-[2rem] px-4 py-1 cursor-move"
+      className={`relative group rounded-lg min-h-[2rem] px-4 py-1 ${
+        isColumns ? "" : "cursor-move"
+      }`}
       data-block-id={block.id}
       {...attributes}
-      {...listeners}
+      {...(!isColumns ? listeners : {})}
     >
+      {isColumns && (
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          {...listeners}
+          className="mb-1 w-full cursor-grab active:cursor-grabbing rounded-md border border-white/10 bg-white/5 py-1 text-center text-[10px] font-bold uppercase tracking-wider text-text-light/40 hover:bg-white/10 hover:text-text-light/60"
+          onClick={(e) => e.stopPropagation()}
+          aria-label="Drag to reorder columns block"
+        >
+          ⋮⋮ Drag row
+        </button>
+      )}
       <button
         type="button"
         onClick={(e) => {

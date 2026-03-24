@@ -8,12 +8,21 @@ export type BlockType =
   | "text"
   | "button"
   | "image"
+  | "columns"
   | "card"
   | "footer"
   | "spacer"
   | "divider"
   | "html"
   | "mjml";
+
+/** Allowed nested block types inside a columns block. */
+export type ColumnChildBlockType = "text" | "image" | "button";
+
+export interface ColumnSlot {
+  id: string;
+  blocks: MJMLBlock[];
+}
 
 export type CardVariant =
   | "default"
@@ -97,6 +106,13 @@ export interface MJMLBlock {
   locked?: boolean;
   socialStyle?: SocialStyle;
   renderAsHtml?: boolean;
+
+  /* columns block: N side-by-side columns with nested text | image | button */
+  columnCount?: 1 | 2 | 3 | 4;
+  /** Per-column stacks; length must match columnCount. */
+  columnSlots?: ColumnSlot[];
+  /** Horizontal gutter between columns (preview + MJML via padding). */
+  columnGap?: string;
 }
 
 /**
