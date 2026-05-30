@@ -8,6 +8,7 @@ import {
   Minus,
   DivideSquare,
   LayoutGrid,
+  LayoutTemplate,
   FileSignature,
   MessageSquareQuote,
   Image as BannerIcon,
@@ -25,6 +26,10 @@ import {
   type TemplateLibraryCard,
 } from "./TemplateLibraryModal";
 import { createColumnsBlockPayload } from "@/lib/editor/columns-helpers";
+import {
+  EMAIL_TEMPLATE_LIBRARY,
+  buildEmailTemplateBlocks,
+} from "@/lib/editor/email-templates";
 
 const COMPONENT_LIBRARY: {
   type: BlockType;
@@ -104,7 +109,13 @@ const PREFAB_CARDS = [
 type Tab = "basic" | "cards" | "layout";
 
 export const Sidebar: React.FC = () => {
-  const { addBlock } = useTemplateStore();
+  const {
+    blocks,
+    addBlock,
+    setBlocks,
+    setActiveBlockId,
+    setColumnsSelection,
+  } = useTemplateStore();
   const openImageUploadModal = useImageUploadModalStore((s) => s.openForAdd);
   const {
     contentAreaWidth,
@@ -176,6 +187,20 @@ export const Sidebar: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const handleApplyEmailTemplate = (templateId: string) => {
+    if (blocks.length > 0) {
+      const ok = window.confirm(
+        "Replace your current email with this template? Your existing blocks will be removed.",
+      );
+      if (!ok) return;
+    }
+    const next = buildEmailTemplateBlocks(templateId);
+    if (next.length === 0) return;
+    setBlocks(next);
+    setActiveBlockId(null);
+    setColumnsSelection(null);
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#222831]">
       {/* Tabs */}
@@ -238,23 +263,64 @@ export const Sidebar: React.FC = () => {
             </div>
           </div>
         ) : activeTab === "cards" ? (
-          <div className="space-y-6 flex flex-col items-center justify-center h-full pb-10">
-            <div className="w-16 h-16 rounded-2xl bg-accent/20 flex items-center justify-center mb-2">
-              <LayoutGrid className="w-8 h-8 text-accent" />
-            </div>
-            <div className="text-center space-y-2 mb-4">
-              <h3 className="text-sm font-bold text-white">Pre-built Cards</h3>
-              <p className="text-xs text-text-light/60 px-4 leading-relaxed">
-                Speed up your workflow using professionally designed composite
-                blocks.
-              </p>
-            </div>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-accent hover:bg-accent/90 text-white px-6 py-3 rounded-lg text-sm font-bold shadow-lg shadow-accent/20 transition-all"
-            >
-              Browse Library
-            </button>
+          <div className="flex flex-col gap-8 min-h-0 pb-6">
+            <section className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/20">
+                  <LayoutTemplate className="h-4 w-4 text-accent" />
+                </div>
+                <div>
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
+                    Templates
+                  </h3>
+                  <p className="text-xs text-text-light/55 leading-snug mt-0.5">
+                    Start from a full email layout, then edit blocks on the canvas.
+                  </p>
+                </div>
+              </div>
+              <div className="grid gap-3">
+                {EMAIL_TEMPLATE_LIBRARY.map((t) => (
+                  <div
+                    key={t.id}
+                    className="rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-accent/35 hover:bg-white/[0.05]"
+                  >
+                    <h4 className="text-sm font-bold text-white mb-1">{t.title}</h4>
+                    <p className="text-[11px] text-text-light/50 leading-relaxed mb-3">
+                      {t.description}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyEmailTemplate(t.id)}
+                      className="w-full rounded-lg bg-accent/90 hover:bg-accent py-2.5 text-xs font-bold text-white shadow-md shadow-accent/15 transition-colors"
+                    >
+                      Use template
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="h-px bg-white/10 shrink-0" aria-hidden />
+
+            <section className="space-y-4 flex flex-col items-center text-center pb-4">
+              <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center">
+                <LayoutGrid className="w-7 h-7 text-accent" />
+              </div>
+              <div className="space-y-1.5 px-1">
+                <h3 className="text-sm font-bold text-white">Block library</h3>
+                <p className="text-xs text-text-light/60 leading-relaxed">
+                  Add single blocks and mini layouts — signatures, banners, columns,
+                  and more.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="w-full max-w-[240px] bg-white/10 hover:bg-white/15 border border-white/10 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-colors"
+              >
+                Browse blocks
+              </button>
+            </section>
           </div>
         ) : (
           <div className="space-y-6">
